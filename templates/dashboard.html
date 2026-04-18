@@ -84,6 +84,22 @@
     </div>
 </div>
 
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="card card-soft">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Monthly Revenue</h5>
+                    <span class="small text-secondary">Paid payments only</span>
+                </div>
+                {{ revenue_chart_labels|json_script:"revenue-chart-labels" }}
+                {{ revenue_chart_values|json_script:"revenue-chart-values" }}
+                <canvas id="revenueChart" height="110"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card card-soft">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">

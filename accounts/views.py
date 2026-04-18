@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
+from django.db.models.functions import TruncMonth
 from django.shortcuts import redirect, render
 
 from bookings.models import Booking
@@ -58,6 +59,26 @@ def dashboard_view(request):
 		unpaid=Count("id", filter=Q(status=Payment.STATUS_UNPAID)),
 	)
 
+	# Revenue chart uses collected payments only (status=paid), grouped by month.
+	revenue_by_month = (
+		Payment.objects.filter(status=Payment.STATUS_PAID)
+		.annotate(month=TruncMonth("date"))
+		.values("month")
+		.annotate(total=Sum("amount"))
+		.order_by("month")
+	)
+
+	revenue_chart_labels = [
+		entry["month"].strftime("%b %Y")
+		for entry in revenue_by_month
+		if entry["month"] is not None
+	]
+	revenue_chart_values = [
+		float(entry["total"] or 0)
+		for entry in revenue_by_month
+		if entry["month"] is not None
+	]
+
 	recent_bookings = Booking.objects.select_related("user", "room", "bed").order_by("-created_at")[:6]
 
 	context = {
@@ -72,5 +93,7 @@ def dashboard_view(request):
 			payment_summary["partial"] or 0,
 			payment_summary["unpaid"] or 0,
 		],
+		"revenue_chart_labels": revenue_chart_labels,
+		"revenue_chart_values": revenue_chart_values,
 	}
 	return render(request, "dashboard.html", context)

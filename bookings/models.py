@@ -1,4 +1,7 @@
+from io import BytesIO
+
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -20,6 +23,8 @@ class Booking(models.Model):
 	start_date = models.DateField()
 	end_date = models.DateField()
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_BOOKED)
+	qr_code = models.ImageField(upload_to="bookings/qr_codes/", blank=True, null=True)
+	check_in_at = models.DateTimeField(blank=True, null=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
@@ -34,13 +39,36 @@ class Booking(models.Model):
 		if self.bed.room_id != self.room_id:
 			raise ValidationError("Selected bed does not belong to the selected room.")
 
+	def generate_qr_code(self):
+		import qrcode
+
+		payload = (
+			f"booking_id={self.pk};"
+			f"user_id={self.user_id};"
+			f"room_id={self.room_id};"
+			f"bed_id={self.bed_id};"
+			f"start_date={self.start_date};"
+			f"end_date={self.end_date}"
+		)
+		qr_image = qrcode.make(payload)
+
+		buffer = BytesIO()
+		qr_image.save(buffer, format="PNG")
+		file_name = f"booking_{self.pk}.png"
+		self.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=False)
+
 	def save(self, *args, **kwargs):
 		self.full_clean()
+		is_new = self.pk is None
 		previous = None
 		if self.pk:
 			previous = Booking.objects.filter(pk=self.pk).values("status", "bed_id").first()
 
 		super().save(*args, **kwargs)
+
+		if is_new and not self.qr_code:
+			self.generate_qr_code()
+			super().save(update_fields=["qr_code"])
 
 		if previous and previous["bed_id"] != self.bed_id:
 			from hostel.models import Bed

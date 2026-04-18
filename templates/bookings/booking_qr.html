@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Booking QR | HoMS{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card card-soft">
+            <div class="card-body p-4">
+                <h4 class="mb-1">Booking QR Code</h4>
+                <p class="text-secondary mb-3">Show this QR at hostel entry for attendance/check-in.</p>
+
+                <div class="row g-3">
+                    <div class="col-md-6"><strong>Student:</strong> {{ booking.user.username }}</div>
+                    <div class="col-md-6"><strong>Hostel:</strong> {{ booking.room.hostel.name }}</div>
+                    <div class="col-md-6"><strong>Room:</strong> {{ booking.room.room_number }}</div>
+                    <div class="col-md-6"><strong>Bed:</strong> {{ booking.bed.bed_number }}</div>
+                    <div class="col-md-6"><strong>From:</strong> {{ booking.start_date }}</div>
+                    <div class="col-md-6"><strong>To:</strong> {{ booking.end_date }}</div>
+                </div>
+
+                <hr>
+                {% if booking.qr_code %}
+                <div class="text-center">
+                    <img src="{{ booking.qr_code.url }}" alt="Booking QR" class="img-fluid rounded border" style="max-width: 280px;">
+                </div>
+                {% else %}
+                <div class="alert alert-warning mb-0">QR code is not available for this booking.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card card-soft h-100">
+            <div class="card-body p-4">
+                <h5 class="mb-2">Scan Simulation</h5>
+                <p class="text-secondary">Use this button to simulate QR scan and mark attendance.</p>
+
+                {% if booking.check_in_at %}
+                <div class="alert alert-success">
+                    Already checked in on <strong>{{ booking.check_in_at|date:"Y-m-d H:i" }}</strong>
+                </div>
+                {% endif %}
+
+                <a href="{% url 'bookings:check_in' booking.id %}" class="btn btn-success w-100">
+                    <i class="fa-solid fa-qrcode me-1"></i>Go to Check-in Page
+                </a>
+                <a href="{% url 'bookings:history' %}" class="btn btn-outline-secondary w-100 mt-2">Back to History</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

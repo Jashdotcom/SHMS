@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Check-in | HoMS{% endblock %}
+
+{% block content %}
+<div class="card card-soft mx-auto" style="max-width: 760px;">
+    <div class="card-body p-4">
+        <h4 class="mb-1">QR Check-in</h4>
+        <p class="text-secondary">Simulated scan page for attendance/check-in.</p>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6"><strong>Student:</strong> {{ booking.user.username }}</div>
+            <div class="col-md-6"><strong>Hostel:</strong> {{ booking.room.hostel.name }}</div>
+            <div class="col-md-6"><strong>Room:</strong> {{ booking.room.room_number }}</div>
+            <div class="col-md-6"><strong>Bed:</strong> {{ booking.bed.bed_number }}</div>
+        </div>
+
+        {% if booking.qr_code %}
+        <div class="text-center mb-3">
+            <img src="{{ booking.qr_code.url }}" alt="Booking QR" class="img-fluid rounded border" style="max-width: 230px;">
+        </div>
+        {% endif %}
+
+        {% if booking.check_in_at %}
+        <div class="alert alert-success">Attendance already marked at {{ booking.check_in_at|date:"Y-m-d H:i" }}.</div>
+        {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success w-100">
+                <i class="fa-solid fa-check me-1"></i>Simulate Scan and Mark Check-in
+            </button>
+        </form>
+        {% endif %}
+
+        <a href="{% url 'bookings:history' %}" class="btn btn-outline-secondary w-100 mt-2">Back to Booking History</a>
+    </div>
+</div>
+{% endblock %}
