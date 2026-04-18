@@ -6,15 +6,23 @@
 <div class="card card-soft mx-auto" style="max-width: 760px;">
     <div class="card-body p-4">
         <h4 class="mb-1">Submit Complaint</h4>
-        <p class="text-secondary">Report an issue to hostel management for quick resolution.</p>
+        <p class="text-secondary">Report an issue with photo proof to hostel management for quick resolution.</p>
 
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="mb-3">
-                <label class="form-label">Issue Details</label>
+                <label class="form-label">Issue Details <span class="text-danger">*</span></label>
                 {{ form.issue }}
+                {% if form.issue.errors %}<div class="invalid-feedback d-block">{{ form.issue.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Upload Proof Image <span class="text-secondary">(optional)</span></label>
+                {{ form.image }}
+                <small class="text-secondary d-block mt-2">Supported formats: JPG, PNG, GIF. Max 5MB.</small>
+                {% if form.image.errors %}<div class="invalid-feedback d-block">{{ form.image.errors.0 }}</div>{% endif %}
             </div>
             <button type="submit" class="btn btn-danger">Submit Complaint</button>
+            <a href="{% url 'services:complaints' %}" class="btn btn-outline-secondary">View My Complaints</a>
         </form>
     </div>
 </div>

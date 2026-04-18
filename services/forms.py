@@ -6,9 +6,10 @@ from .models import Complaint, ServiceRequest
 class ComplaintForm(forms.ModelForm):
     class Meta:
         model = Complaint
-        fields = ["issue"]
+        fields = ["issue", "image"]
         widgets = {
-            "issue": forms.Textarea(attrs={"class": "form-control", "rows": 4, "placeholder": "Describe your issue"}),
+            "issue": forms.Textarea(attrs={"class": "form-control", "rows": 5, "placeholder": "Describe your issue in detail..."}),
+            "image": forms.FileInput(attrs={"class": "form-control", "accept": "image/*"}),
         }
 
 

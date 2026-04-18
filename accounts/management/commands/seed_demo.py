@@ -116,17 +116,26 @@ class Command(BaseCommand):
                 paid_date=paid_date,
             )
 
-            Complaint.objects.get_or_create(
+            complaint_statuses = [Complaint.STATUS_PENDING, Complaint.STATUS_IN_PROGRESS, Complaint.STATUS_RESOLVED]
+            complaint_issues = [
+                "Wi-Fi connectivity issue in corridor.",
+                "Broken water tap in bathroom.",
+                "Dirty common area needs cleaning.",
+                "Maintenance required for room door.",
+                "Pest infestation in kitchen area.",
+            ]
+            
+            Complaint.objects.create(
                 user=student,
-                issue=f"Complaint sample {idx}: Wi-Fi connectivity issue in corridor.",
-                defaults={"status": Complaint.STATUS_OPEN},
+                issue=f"Complaint {idx}: {complaint_issues[idx % len(complaint_issues)]}",
+                status=complaint_statuses[idx % len(complaint_statuses)],
             )
 
-            ServiceRequest.objects.get_or_create(
+            ServiceRequest.objects.create(
                 user=student,
                 request_type=ServiceRequest.TYPE_CLEANING if idx % 2 == 0 else ServiceRequest.TYPE_MAINTENANCE,
                 details="Demo service request for hostel operations.",
-                defaults={"status": ServiceRequest.STATUS_REQUESTED},
+                status=ServiceRequest.STATUS_REQUESTED,
             )
 
         self.stdout.write(self.style.SUCCESS("Demo seed completed."))
