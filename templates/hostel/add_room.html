@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Add Room | HoMS{% endblock %}
+
+{% block content %}
+<div class="card card-soft mx-auto" style="max-width: 760px;">
+    <div class="card-body p-4">
+        <h4 class="mb-1">Add New Room</h4>
+        <p class="text-secondary">Create room inventory and auto-generate beds from capacity.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Hostel</label>
+                    {{ form.hostel }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Room Number</label>
+                    {{ form.room_number }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Room Type</label>
+                    {{ form.room_type }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Capacity</label>
+                    {{ form.capacity }}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-4">Create Room</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

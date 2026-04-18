@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Services | HoMS{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="mb-0">Services & Complaints</h4>
+        <small class="text-secondary">Raise issues and request hostel support services.</small>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'services:complaint' %}" class="btn btn-outline-danger btn-sm">Submit Complaint</a>
+        <a href="{% url 'services:request' %}" class="btn btn-primary btn-sm">Request Service</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h5 class="mb-3">Complaints</h5>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                        <tr><th>User</th><th>Issue</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                        {% for complaint in complaints %}
+                        <tr>
+                            <td>{{ complaint.user.username }}</td>
+                            <td>{{ complaint.issue|truncatechars:45 }}</td>
+                            <td>
+                                {% if complaint.status == "open" %}
+                                <span class="badge text-bg-danger">Open</span>
+                                {% elif complaint.status == "in_progress" %}
+                                <span class="badge text-bg-warning">In Progress</span>
+                                {% else %}
+                                <span class="badge text-bg-success">Resolved</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center text-secondary py-4">No complaints submitted.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <h5 class="mb-3">Service Requests</h5>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                        <tr><th>User</th><th>Type</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                        {% for item in service_requests %}
+                        <tr>
+                            <td>{{ item.user.username }}</td>
+                            <td>{{ item.get_request_type_display }}</td>
+                            <td>
+                                {% if item.status == "requested" %}
+                                <span class="badge text-bg-primary">Requested</span>
+                                {% elif item.status == "in_progress" %}
+                                <span class="badge text-bg-warning">In Progress</span>
+                                {% else %}
+                                <span class="badge text-bg-success">Completed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center text-secondary py-4">No service requests found.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

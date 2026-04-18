@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Complaint | HoMS{% endblock %}
+
+{% block content %}
+<div class="card card-soft mx-auto" style="max-width: 760px;">
+    <div class="card-body p-4">
+        <h4 class="mb-1">Submit Complaint</h4>
+        <p class="text-secondary">Report an issue to hostel management for quick resolution.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Issue Details</label>
+                {{ form.issue }}
+            </div>
+            <button type="submit" class="btn btn-danger">Submit Complaint</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
