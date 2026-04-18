@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.db.models import Count, Q, Sum
@@ -30,10 +30,16 @@ def register_view(request):
 	if request.method == "POST":
 		form = RegisterForm(request.POST)
 		if form.is_valid():
-			user = form.save()
-			login(request, user)
-			messages.success(request, "Registration successful.")
-			return redirect("accounts:dashboard")
+			try:
+				user = form.save(commit=True)
+				messages.success(request, f"Registration successful! Welcome {user.first_name}. Please log in with your credentials.")
+				return redirect("accounts:login")
+			except Exception as e:
+				messages.error(request, f"An error occurred during registration: {str(e)}")
+				form = RegisterForm()
+		else:
+			# Form has errors - they will be displayed in template
+			pass
 	else:
 		form = RegisterForm()
 
