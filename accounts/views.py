@@ -18,6 +18,9 @@ class UserLoginView(LoginView):
 	form_class = LoginForm
 	redirect_authenticated_user = True
 
+	def get_success_url(self):
+		return self.request.GET.get("next") or self.request.POST.get("next") or "/dashboard"
+
 
 def register_view(request):
 	if request.user.is_authenticated:
