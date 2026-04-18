@@ -11,9 +11,12 @@
                 <thead>
                 <tr>
                     <th>Student</th>
-                    <th>Amount</th>
+                    <th>Original</th>
+                    <th>Due Date</th>
+                    <th>Paid Date</th>
+                    <th>Late Fee</th>
+                    <th>Total</th>
                     <th>Status</th>
-                    <th>Date</th>
                     {% if request.user.role == "admin" or request.user.is_staff %}<th>Action</th>{% endif %}
                 </tr>
                 </thead>
@@ -22,6 +25,16 @@
                 <tr>
                     <td>{{ payment.user.username }}</td>
                     <td>{{ payment.amount }}</td>
+                    <td>{% if payment.due_date %}{{ payment.due_date|date:"Y-m-d" }}{% else %}<span class="text-secondary">-</span>{% endif %}</td>
+                    <td>{% if payment.paid_date %}{{ payment.paid_date|date:"Y-m-d" }}{% else %}<span class="text-secondary">-</span>{% endif %}</td>
+                    <td>
+                        {% if payment.late_fee > 0 %}
+                        <span class="badge text-bg-warning">₹{{ payment.late_fee }}</span>
+                        {% else %}
+                        <span class="text-secondary">-</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>₹{{ payment.get_total_amount }}</strong></td>
                     <td>
                         {% if payment.status == "paid" %}
                         <span class="badge text-bg-success">Paid</span>
@@ -31,13 +44,12 @@
                         <span class="badge text-bg-danger">Unpaid</span>
                         {% endif %}
                     </td>
-                    <td>{{ payment.date|date:"Y-m-d H:i" }}</td>
                     {% if request.user.role == "admin" or request.user.is_staff %}
                     <td><a href="{% url 'payments:update' payment.id %}" class="btn btn-sm btn-outline-primary">Update</a></td>
                     {% endif %}
                 </tr>
                 {% empty %}
-                <tr><td colspan="5" class="text-center text-secondary py-4">No payment records found.</td></tr>
+                <tr><td colspan="9" class="text-center text-secondary py-4">No payment records found.</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
