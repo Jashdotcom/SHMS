@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -43,7 +45,7 @@ def booking_qr_view(request, booking_id):
 		messages.error(request, "You are not allowed to view this booking QR.")
 		return redirect("bookings:history")
 
-	return render(request, "bookings/booking_qr.html", {"booking": booking})
+	return render(request, "bookings/booking_qr.html", {"booking": booking, "today": date.today()})
 
 
 @login_required
@@ -55,7 +57,10 @@ def check_in_view(request, booking_id):
 		return redirect("bookings:history")
 
 	if request.method == "POST":
-		if booking.status != Booking.STATUS_BOOKED:
+		today = date.today()
+		if today < booking.start_date or today > booking.end_date:
+			messages.warning(request, "Check-in is only available during the booking period.")
+		elif booking.status != Booking.STATUS_BOOKED:
 			messages.warning(request, "Only active bookings can be checked in.")
 		elif booking.check_in_at:
 			messages.info(request, "Check-in is already marked for this booking.")

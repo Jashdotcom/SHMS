@@ -43,9 +43,15 @@
                 </div>
                 {% endif %}
 
+                {% if today >= booking.start_date and today <= booking.end_date and not booking.check_in_at %}
                 <a href="{% url 'bookings:check_in' booking.id %}" class="btn btn-success w-100">
                     <i class="fa-solid fa-qrcode me-1"></i>Go to Check-in Page
                 </a>
+                {% else %}
+                <button class="btn btn-secondary w-100" disabled>
+                    Check-in Not Available
+                </button>
+                {% endif %}
                 <a href="{% url 'bookings:history' %}" class="btn btn-outline-secondary w-100 mt-2">Back to History</a>
             </div>
         </div>
