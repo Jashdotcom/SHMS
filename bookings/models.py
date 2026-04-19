@@ -44,6 +44,12 @@ class Booking(models.Model):
 			raise ValidationError("End date must be after start date.")
 		if self.bed.room_id != self.room_id:
 			raise ValidationError("Selected bed does not belong to the selected room.")
+		if self.status == self.STATUS_BOOKED and Booking.objects.filter(
+			room=self.room,
+			bed=self.bed,
+			status=self.STATUS_BOOKED,
+		).exclude(pk=self.pk).exists():
+			raise ValidationError("This bed is already booked for the selected room.")
 
 	def generate_qr_code(self):
 		if not qrcode:

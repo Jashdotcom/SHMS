@@ -3,39 +3,24 @@ from datetime import date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import User
-from hostel.models import Bed, Room
+from hostel.models import Room
 
 from .forms import BookingForm
 from .models import Booking
 
 
 @login_required
-def get_beds(request):
-	room_id = request.GET.get("room_id")
-	if not room_id:
-		return JsonResponse({"beds": []})
-
-	beds = Bed.objects.filter(room_id=room_id, is_available=True).order_by("bed_number")
-	data = [{"id": bed.id, "name": bed.bed_number} for bed in beds]
-	return JsonResponse({"beds": data})
-
-
-@login_required
 def book_room_view(request):
+	rooms = Room.objects.all().prefetch_related("beds").order_by("room_number")
+
 	if request.method == "POST":
 		form = BookingForm(request.POST)
 		if form.is_valid():
 			with transaction.atomic():
-				room = Room.objects.select_for_update().get(pk=form.cleaned_data["room"].pk)
-				if room.available_beds <= 0:
-					messages.error(request, "Room is full")
-					return redirect("bookings:book_room")
-
 				booking = form.save(commit=False)
 				booking.user = request.user
 				booking.status = Booking.STATUS_BOOKED
@@ -46,7 +31,7 @@ def book_room_view(request):
 	else:
 		form = BookingForm()
 
-	return render(request, "bookings/book_room.html", {"form": form})
+	return render(request, "bookings/book_room.html", {"form": form, "rooms": rooms})
 
 
 @login_required

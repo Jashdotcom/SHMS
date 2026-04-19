@@ -17,11 +17,20 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label">Room</label>
-                    {{ form.room }}
+                    <select name="room" id="room" class="form-select">
+                        <option value="">Select Room</option>
+                        {% for room in rooms %}
+                        <option value="{{ room.id }}" data-prefix="{{ room.room_number|slice:':1' }}" data-beds="{{ room.available_beds }}" data-bed-ids="{% for bed in room.beds.all %}{{ bed.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                            {{ room.room_number }} - {{ room.room_type }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Bed</label>
-                    {{ form.bed }}
+                    <select name="bed" id="bed" class="form-select">
+                        <option value="">Select Bed</option>
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Start Date</label>
@@ -40,34 +49,29 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const roomSelect = document.getElementById("room");
-    const bedSelect = document.getElementById("bed");
-    const bedsUrl = "{% url 'bookings:get_beds' %}";
+document.getElementById("room").addEventListener("change", function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const prefix = selectedOption.getAttribute("data-prefix");
+    const beds = parseInt(selectedOption.getAttribute("data-beds"), 10) || 0;
+    const bedIds = (selectedOption.getAttribute("data-bed-ids") || "").split(",").filter(Boolean);
 
-    if (!roomSelect || !bedSelect) {
+    const bedSelect = document.getElementById("bed");
+    bedSelect.innerHTML = '<option value="">Select Bed</option>';
+
+    if (!beds || beds === 0) {
+        bedSelect.innerHTML = '<option value="">No Beds Available</option>';
         return;
     }
 
-    roomSelect.addEventListener("change", function () {
-        const roomId = this.value;
-        bedSelect.innerHTML = '<option value="">Select Bed</option>';
-
-        if (!roomId) {
-            return;
+    for (let i = 1; i <= beds; i++) {
+        if (!bedIds[i - 1]) {
+            continue;
         }
-
-        fetch(`${bedsUrl}?room_id=${roomId}`)
-            .then(response => response.json())
-            .then(data => {
-                data.beds.forEach(bed => {
-                    const option = document.createElement("option");
-                    option.value = bed.id;
-                    option.textContent = bed.name;
-                    bedSelect.appendChild(option);
-                });
-            });
-    });
+        const option = document.createElement("option");
+        option.value = bedIds[i - 1];
+        option.text = prefix + i;
+        bedSelect.appendChild(option);
+    }
 });
 </script>
 {% endblock %}
