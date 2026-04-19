@@ -37,3 +37,37 @@
     </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const roomSelect = document.getElementById("room");
+    const bedSelect = document.getElementById("bed");
+    const bedsUrl = "{% url 'bookings:get_beds' %}";
+
+    if (!roomSelect || !bedSelect) {
+        return;
+    }
+
+    roomSelect.addEventListener("change", function () {
+        const roomId = this.value;
+        bedSelect.innerHTML = '<option value="">Select Bed</option>';
+
+        if (!roomId) {
+            return;
+        }
+
+        fetch(`${bedsUrl}?room_id=${roomId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.beds.forEach(bed => {
+                    const option = document.createElement("option");
+                    option.value = bed.id;
+                    option.textContent = bed.name;
+                    bedSelect.appendChild(option);
+                });
+            });
+    });
+});
+</script>
+{% endblock %}

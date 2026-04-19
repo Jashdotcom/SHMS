@@ -11,8 +11,8 @@ class BookingForm(forms.ModelForm):
         model = Booking
         fields = ["room", "bed", "start_date", "end_date"]
         widgets = {
-            "room": forms.Select(attrs={"class": "form-select"}),
-            "bed": forms.Select(attrs={"class": "form-select"}),
+            "room": forms.Select(attrs={"class": "form-select", "id": "room"}),
+            "bed": forms.Select(attrs={"class": "form-select", "id": "bed"}),
             "start_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
             "end_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
         }
@@ -21,7 +21,7 @@ class BookingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["room"].queryset = Room.objects.filter(available_beds__gt=0).select_related("hostel")
-        self.fields["bed"].queryset = Bed.objects.filter(is_available=True).select_related("room", "room__hostel")
+        self.fields["bed"].queryset = Bed.objects.none()
 
         room = None
         if self.data.get("room"):
@@ -33,7 +33,7 @@ class BookingForm(forms.ModelForm):
             room = self.instance.room
 
         if room:
-            self.fields["bed"].queryset = self.fields["bed"].queryset.filter(room=room)
+            self.fields["bed"].queryset = Bed.objects.filter(is_available=True, room=room).select_related("room", "room__hostel")
 
     def clean(self):
         cleaned_data = super().clean()

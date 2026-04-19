@@ -3,14 +3,26 @@ from datetime import date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import User
-from hostel.models import Room
+from hostel.models import Bed, Room
 
 from .forms import BookingForm
 from .models import Booking
+
+
+@login_required
+def get_beds(request):
+	room_id = request.GET.get("room_id")
+	if not room_id:
+		return JsonResponse({"beds": []})
+
+	beds = Bed.objects.filter(room_id=room_id, is_available=True).order_by("bed_number")
+	data = [{"id": bed.id, "name": bed.bed_number} for bed in beds]
+	return JsonResponse({"beds": data})
 
 
 @login_required
