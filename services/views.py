@@ -79,3 +79,20 @@ def request_service_view(request):
 		form = ServiceRequestForm()
 
 	return render(request, "services/request_service.html", {"form": form})
+
+
+@user_passes_test(_is_admin_user)
+def update_service_status(request, id):
+	service = get_object_or_404(ServiceRequest, id=id)
+
+	if request.method == "POST":
+		new_status = request.POST.get("status")
+		allowed_statuses = [choice[0] for choice in ServiceRequest.STATUS_CHOICES]
+		if new_status in allowed_statuses:
+			service.status = new_status
+			service.save(update_fields=["status"])
+			messages.success(request, "Status updated successfully")
+			return redirect("services:list")
+		messages.error(request, "Invalid status selected.")
+
+	return render(request, "services/update_status.html", {"service": service})
