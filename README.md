@@ -15,4 +15,5 @@ A Django-based web application for managing hostel/PG operations.
 
 ## Setup
 1. Clone repo
-2. Run `python manage.py runserver`
+2. Install dependencies with `pip install -r requirements.txt`
+3. Run `python manage.py runserver`

@@ -64,6 +64,7 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
+	is_admin = request.user.is_superuser or request.user.role == User.ROLE_ADMIN
 	total_students = User.objects.filter(role=User.ROLE_STUDENT).count()
 	rooms_booked = Booking.objects.filter(status=Booking.STATUS_BOOKED).values("room").distinct().count()
 	available_beds = Bed.objects.filter(is_available=True).count()
@@ -74,25 +75,28 @@ def dashboard_view(request):
 		unpaid=Count("id", filter=Q(status=Payment.STATUS_UNPAID)),
 	)
 
-	# Revenue chart uses collected payments only (status=paid), grouped by month.
-	revenue_by_month = (
-		Payment.objects.filter(status=Payment.STATUS_PAID)
-		.annotate(month=TruncMonth("date"))
-		.values("month")
-		.annotate(total=Sum("amount"))
-		.order_by("month")
-	)
+	revenue_chart_labels = []
+	revenue_chart_values = []
+	if is_admin:
+		# Revenue chart uses collected payments only (status=paid), grouped by month.
+		revenue_by_month = (
+			Payment.objects.filter(status=Payment.STATUS_PAID)
+			.annotate(month=TruncMonth("date"))
+			.values("month")
+			.annotate(total=Sum("amount"))
+			.order_by("month")
+		)
 
-	revenue_chart_labels = [
-		entry["month"].strftime("%b %Y")
-		for entry in revenue_by_month
-		if entry["month"] is not None
-	]
-	revenue_chart_values = [
-		float(entry["total"] or 0)
-		for entry in revenue_by_month
-		if entry["month"] is not None
-	]
+		revenue_chart_labels = [
+			entry["month"].strftime("%b %Y")
+			for entry in revenue_by_month
+			if entry["month"] is not None
+		]
+		revenue_chart_values = [
+			float(entry["total"] or 0)
+			for entry in revenue_by_month
+			if entry["month"] is not None
+		]
 
 	recent_bookings = Booking.objects.select_related("user", "room", "bed").order_by("-created_at")[:6]
 
@@ -108,7 +112,8 @@ def dashboard_view(request):
 			payment_summary["partial"] or 0,
 			payment_summary["unpaid"] or 0,
 		],
-		"revenue_chart_labels": revenue_chart_labels,
-		"revenue_chart_values": revenue_chart_values,
 	}
+	if is_admin:
+		context["revenue_chart_labels"] = revenue_chart_labels
+		context["revenue_chart_values"] = revenue_chart_values
 	return render(request, "dashboard.html", context)

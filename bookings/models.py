@@ -5,6 +5,12 @@ from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.db import models
 
+# Requires: pip install qrcode pillow
+try:
+	import qrcode
+except ImportError:
+	qrcode = None
+
 
 class Booking(models.Model):
 	STATUS_BOOKED = "booked"
@@ -40,7 +46,8 @@ class Booking(models.Model):
 			raise ValidationError("Selected bed does not belong to the selected room.")
 
 	def generate_qr_code(self):
-		import qrcode
+		if not qrcode:
+			return False
 
 		payload = (
 			f"booking_id={self.pk};"
@@ -56,6 +63,7 @@ class Booking(models.Model):
 		qr_image.save(buffer, format="PNG")
 		file_name = f"booking_{self.pk}.png"
 		self.qr_code.save(file_name, ContentFile(buffer.getvalue()), save=False)
+		return True
 
 	def save(self, *args, **kwargs):
 		self.full_clean()
@@ -67,8 +75,8 @@ class Booking(models.Model):
 		super().save(*args, **kwargs)
 
 		if is_new and not self.qr_code:
-			self.generate_qr_code()
-			super().save(update_fields=["qr_code"])
+			if self.generate_qr_code():
+				super().save(update_fields=["qr_code"])
 
 		if previous and previous["bed_id"] != self.bed_id:
 			from hostel.models import Bed

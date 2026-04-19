@@ -90,6 +90,7 @@
     </div>
 </div>
 
+{% if request.user.role == "admin" or request.user.is_superuser %}
 <div class="row g-3 mb-3">
     <div class="col-12">
         <div class="card card-soft">
@@ -105,6 +106,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <div class="card card-soft">
     <div class="card-body">
