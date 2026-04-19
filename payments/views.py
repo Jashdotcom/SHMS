@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
 from accounts.models import User
@@ -59,6 +61,23 @@ def download_receipt(request, payment_id):
 	response = HttpResponse(content_type="application/pdf")
 	response["Content-Disposition"] = f'attachment; filename="receipt_{payment.id}.pdf"'
 
+	currency_prefix = "Rs. "
+	amount_font_name = "Helvetica"
+	unicode_font_name = "ReceiptUnicode"
+	font_candidates = [
+		os.path.join(settings.BASE_DIR, "static", "fonts", "Arial.ttf"),
+		"C:/Windows/Fonts/arial.ttf",
+		"C:/Windows/Fonts/seguiemj.ttf",
+		"C:/Windows/Fonts/segoeui.ttf",
+	]
+	for font_path in font_candidates:
+		if os.path.exists(font_path):
+			if unicode_font_name not in pdfmetrics.getRegisteredFontNames():
+				pdfmetrics.registerFont(TTFont(unicode_font_name, font_path))
+			amount_font_name = unicode_font_name
+			currency_prefix = "₹"
+			break
+
 	pdf = canvas.Canvas(response, pagesize=letter)
 	width, height = letter
 	left_margin = 0.85 * inch
@@ -104,11 +123,11 @@ def download_receipt(request, payment_id):
 	pdf.setFillColor(colors.HexColor("#eef5ff"))
 	pdf.roundRect(left_margin, box_top - box_height, right_margin - left_margin, box_height, 10, stroke=1, fill=1)
 	pdf.setFillColor(colors.black)
-	pdf.setFont("Helvetica", 11)
-	pdf.drawString(left_margin + 16, box_top - 22, f"Original Amount: ₹{payment.amount}")
-	pdf.drawString(left_margin + 16, box_top - 42, f"Late Fee: ₹{payment.late_fee}")
-	pdf.setFont("Helvetica-Bold", 13)
-	pdf.drawString(left_margin + 16, box_top - 62, f"Total Paid: ₹{payment.get_total_amount()}")
+	pdf.setFont(amount_font_name, 11)
+	pdf.drawString(left_margin + 16, box_top - 22, f"Original Amount: {currency_prefix}{payment.amount}")
+	pdf.drawString(left_margin + 16, box_top - 42, f"Late Fee: {currency_prefix}{payment.late_fee}")
+	pdf.setFont(amount_font_name, 13)
+	pdf.drawString(left_margin + 16, box_top - 62, f"Total Paid: {currency_prefix}{payment.get_total_amount()}")
 
 	# Footer note
 	pdf.setFillColor(colors.HexColor("#444444"))
