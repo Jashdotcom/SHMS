@@ -24,7 +24,12 @@
         <nav class="nav flex-column">
             <a class="nav-link" href="{% url 'accounts:dashboard' %}"><i class="fa-solid fa-chart-line me-2"></i>Dashboard</a>
             <a class="nav-link" href="{% url 'hostel:rooms' %}"><i class="fa-solid fa-bed me-2"></i>Rooms</a>
+            {% if user.is_authenticated and user.role == "student" %}
             <a class="nav-link" href="{% url 'bookings:book_room' %}"><i class="fa-solid fa-calendar-check me-2"></i>Book Room</a>
+            {% endif %}
+            {% if user.is_authenticated and user.role == "admin" %}
+            <a class="nav-link" href="{% url 'bookings:history' %}"><i class="fa-solid fa-clipboard-list me-2"></i>View Bookings</a>
+            {% endif %}
             <a class="nav-link" href="{% url 'payments:list' %}"><i class="fa-solid fa-wallet me-2"></i>Payments</a>
             <a class="nav-link" href="{% url 'services:list' %}"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Services</a>
         </nav>

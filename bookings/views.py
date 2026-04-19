@@ -1,8 +1,9 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import HttpResponseForbidden
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -15,6 +16,9 @@ from .models import Booking
 
 @login_required
 def book_room_view(request):
+	if request.user.role != User.ROLE_STUDENT:
+		return HttpResponseForbidden("Admins cannot book rooms")
+
 	rooms = Room.objects.all().prefetch_related("beds").order_by("room_number")
 
 	if request.method == "POST":
@@ -36,11 +40,29 @@ def book_room_view(request):
 
 @login_required
 def booking_history_view(request):
-	bookings = Booking.objects.select_related("user", "room", "bed", "room__hostel")
-	if request.user.role != User.ROLE_ADMIN and not request.user.is_staff:
-		bookings = bookings.filter(user=request.user)
+	if request.user.role != User.ROLE_ADMIN:
+		return HttpResponseForbidden("Access denied")
 
-	return render(request, "bookings/history.html", {"bookings": bookings})
+	bookings = Booking.objects.select_related("user", "room", "bed", "room__hostel")
+	is_admin = True
+	filter_type = ""
+	selected_date = ""
+	filter_type = request.GET.get("filter") or ""
+	selected_date = request.GET.get("date") or ""
+	if filter_type == "today":
+		bookings = bookings.filter(start_date=date.today())
+	elif filter_type == "tomorrow":
+		bookings = bookings.filter(start_date=date.today() + timedelta(days=1))
+	elif filter_type == "custom" and selected_date:
+		bookings = bookings.filter(start_date=selected_date)
+
+	context = {
+		"bookings": bookings,
+		"active_filter": filter_type,
+		"selected_date": selected_date,
+		"is_admin": is_admin,
+	}
+	return render(request, "bookings/history.html", context)
 
 
 @login_required

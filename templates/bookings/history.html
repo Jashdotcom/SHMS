@@ -9,6 +9,15 @@
             <h4 class="mb-0">Booking History</h4>
             <a href="{% url 'bookings:book_room' %}" class="btn btn-sm btn-primary">New Booking</a>
         </div>
+        {% if is_admin %}
+        <form method="get" class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <button type="submit" name="filter" value="today" class="btn btn-sm {% if active_filter == 'today' %}btn-primary{% else %}btn-outline-primary{% endif %}">Today</button>
+            <button type="submit" name="filter" value="tomorrow" class="btn btn-sm {% if active_filter == 'tomorrow' %}btn-primary{% else %}btn-outline-primary{% endif %}">Tomorrow</button>
+            <input type="date" name="date" value="{{ selected_date }}" class="form-control form-control-sm" style="max-width: 180px;">
+            <button type="submit" name="filter" value="custom" class="btn btn-sm {% if active_filter == 'custom' %}btn-primary{% else %}btn-outline-primary{% endif %}">Filter by Date</button>
+            <a href="{% url 'bookings:history' %}" class="btn btn-sm btn-outline-secondary">Show All</a>
+        </form>
+        {% endif %}
         <div class="table-responsive">
             <table class="table align-middle mb-0">
                 <thead>
@@ -20,7 +29,6 @@
                     <th>To</th>
                     <th>Status</th>
                     <th>QR</th>
-                    <th>Check-in</th>
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -45,13 +53,6 @@
                         <a href="{% url 'bookings:qr' booking.id %}" class="btn btn-sm btn-outline-primary">View QR</a>
                     </td>
                     <td>
-                        {% if booking.check_in_at %}
-                        <span class="badge text-bg-success">{{ booking.check_in_at|date:"Y-m-d H:i" }}</span>
-                        {% else %}
-                        <a href="{% url 'bookings:check_in' booking.id %}" class="btn btn-sm btn-outline-success">Check In</a>
-                        {% endif %}
-                    </td>
-                    <td>
                         {% if booking.status == "booked" %}
                         <a href="{% url 'bookings:cancel' booking.id %}" class="btn btn-sm btn-outline-danger">Cancel</a>
                         {% else %}
@@ -60,7 +61,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="9" class="text-center text-secondary py-4">No bookings found.</td></tr>
+                <tr><td colspan="8" class="text-center text-secondary py-4">No bookings found.</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
