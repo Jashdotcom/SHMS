@@ -17,6 +17,7 @@
                     <th>Late Fee</th>
                     <th>Total</th>
                     <th>Status</th>
+                    {% if not is_admin %}<th>Receipt</th>{% endif %}
                     {% if request.user.role == "admin" or request.user.is_staff %}<th>Action</th>{% endif %}
                 </tr>
                 </thead>
@@ -44,12 +45,26 @@
                         <span class="badge text-bg-danger">Unpaid</span>
                         {% endif %}
                     </td>
+                    {% if not is_admin %}
+                    <td>
+                        {% if payment.status == "paid" %}
+                        <a href="{% url 'payments:download_receipt' payment.id %}" class="btn btn-sm btn-primary">Download</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    {% endif %}
                     {% if request.user.role == "admin" or request.user.is_staff %}
-                    <td><a href="{% url 'payments:update' payment.id %}" class="btn btn-sm btn-outline-primary">Update</a></td>
+                    <td>
+                        <a href="{% url 'payments:update' payment.id %}" class="btn btn-sm btn-outline-primary">Update</a>
+                        {% if payment.status == "paid" %}
+                        <a href="{% url 'payments:download_receipt' payment.id %}" class="btn btn-sm btn-primary ms-1">Download Receipt</a>
+                        {% endif %}
+                    </td>
                     {% endif %}
                 </tr>
                 {% empty %}
-                <tr><td colspan="9" class="text-center text-secondary py-4">No payment records found.</td></tr>
+                <tr><td colspan="{% if is_admin %}8{% else %}8{% endif %}" class="text-center text-secondary py-4">No payment records found.</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
