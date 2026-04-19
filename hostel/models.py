@@ -1,5 +1,7 @@
 from django.db import models
 
+from bookings.models import Booking
+
 
 class Hostel(models.Model):
 	name = models.CharField(max_length=120)
@@ -37,6 +39,20 @@ class Room(models.Model):
 
 	def __str__(self):
 		return f"{self.hostel.name} - Room {self.room_number}"
+
+	def save(self, *args, **kwargs):
+		capacity_by_type = {
+			self.TYPE_SINGLE: 1,
+			self.TYPE_DOUBLE: 2,
+			self.TYPE_TRIPLE: 3,
+			self.TYPE_DORM: 4,
+		}
+		self.capacity = capacity_by_type.get(self.room_type, self.capacity)
+		super().save(*args, **kwargs)
+
+	def available_beds(self):
+		booked_beds = self.bookings.filter(status=Booking.STATUS_BOOKED).count()
+		return max(self.capacity - booked_beds, 0)
 
 
 class Bed(models.Model):

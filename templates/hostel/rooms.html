@@ -33,10 +33,7 @@
                     <td>{{ room.room_number }}</td>
                     <td>{{ room.get_room_type_display }}</td>
                     <td>{{ room.capacity }}</td>
-                    <td>
-                        {{ room.available_beds_count }}
-                        {{ room.beds.all|length }} total
-                    </td>
+                    <td>{{ room.available_beds }}</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="5" class="text-center text-secondary py-4">No rooms found.</td></tr>

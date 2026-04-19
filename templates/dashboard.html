@@ -4,6 +4,12 @@
 {% block title %}Dashboard | HoMS{% endblock %}
 
 {% block content %}
+<div class="card card-soft mb-3">
+    <div class="card-body py-3">
+        <h4 class="mb-0">Welcome, {{ request.user.first_name }}</h4>
+    </div>
+</div>
+
 <div class="row g-3 mb-3">
     <div class="col-md-6 col-xl-3">
         <div class="card card-soft h-100">
