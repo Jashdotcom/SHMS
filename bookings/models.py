@@ -70,9 +70,40 @@ class Booking(models.Model):
 		is_new = self.pk is None
 		previous = None
 		if self.pk:
-			previous = Booking.objects.filter(pk=self.pk).values("status", "bed_id").first()
+			previous = Booking.objects.filter(pk=self.pk).values("status", "bed_id", "room_id").first()
 
 		super().save(*args, **kwargs)
+
+		from hostel.models import Room
+
+		if is_new and self.status == self.STATUS_BOOKED:
+			room = Room.objects.filter(pk=self.room_id).first()
+			if room:
+				room.available_beds = max(room.available_beds - 1, 0)
+				room.save(update_fields=["available_beds"])
+		elif previous:
+			previous_was_booked = previous["status"] == self.STATUS_BOOKED
+			current_is_booked = self.status == self.STATUS_BOOKED
+
+			if previous_was_booked and not current_is_booked:
+				old_room = Room.objects.filter(pk=previous["room_id"]).first()
+				if old_room:
+					old_room.available_beds += 1
+					old_room.save(update_fields=["available_beds"])
+			elif not previous_was_booked and current_is_booked:
+				room = Room.objects.filter(pk=self.room_id).first()
+				if room:
+					room.available_beds = max(room.available_beds - 1, 0)
+					room.save(update_fields=["available_beds"])
+			elif previous_was_booked and current_is_booked and previous["room_id"] != self.room_id:
+				old_room = Room.objects.filter(pk=previous["room_id"]).first()
+				new_room = Room.objects.filter(pk=self.room_id).first()
+				if old_room:
+					old_room.available_beds += 1
+					old_room.save(update_fields=["available_beds"])
+				if new_room:
+					new_room.available_beds = max(new_room.available_beds - 1, 0)
+					new_room.save(update_fields=["available_beds"])
 
 		if is_new and not self.qr_code:
 			if self.generate_qr_code():

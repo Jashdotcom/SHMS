@@ -8,7 +8,7 @@ from django.db.models.functions import TruncMonth
 from django.shortcuts import redirect, render
 
 from bookings.models import Booking
-from hostel.models import Bed
+from hostel.models import Room
 from payments.models import Payment
 
 from .forms import LoginForm, RegisterForm
@@ -67,7 +67,7 @@ def dashboard_view(request):
 	is_admin = request.user.is_superuser or request.user.role == User.ROLE_ADMIN
 	total_students = User.objects.filter(role=User.ROLE_STUDENT).count()
 	rooms_booked = Booking.objects.filter(status=Booking.STATUS_BOOKED).values("room").distinct().count()
-	available_beds = Bed.objects.filter(is_available=True).count()
+	available_beds = Room.objects.aggregate(total=Sum("available_beds"))["total"] or 0
 
 	payment_summary = Payment.objects.aggregate(
 		paid=Count("id", filter=Q(status=Payment.STATUS_PAID)),

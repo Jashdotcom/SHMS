@@ -2,10 +2,12 @@ from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import User
+from hostel.models import Room
 
 from .forms import BookingForm
 from .models import Booking
@@ -16,10 +18,17 @@ def book_room_view(request):
 	if request.method == "POST":
 		form = BookingForm(request.POST)
 		if form.is_valid():
-			booking = form.save(commit=False)
-			booking.user = request.user
-			booking.status = Booking.STATUS_BOOKED
-			booking.save()
+			with transaction.atomic():
+				room = Room.objects.select_for_update().get(pk=form.cleaned_data["room"].pk)
+				if room.available_beds <= 0:
+					messages.error(request, "Room is full")
+					return redirect("bookings:book_room")
+
+				booking = form.save(commit=False)
+				booking.user = request.user
+				booking.status = Booking.STATUS_BOOKED
+				booking.save()
+
 			messages.success(request, "Booking created successfully. QR code generated.")
 			return redirect("bookings:qr", booking_id=booking.id)
 	else:
