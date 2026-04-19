@@ -1,7 +1,5 @@
 from django.db import models
 
-from bookings.models import Booking
-
 
 class Hostel(models.Model):
 	name = models.CharField(max_length=120)
@@ -32,6 +30,7 @@ class Room(models.Model):
 	room_number = models.CharField(max_length=30)
 	room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES)
 	capacity = models.PositiveIntegerField()
+	available_beds = models.IntegerField(default=0)
 
 	class Meta:
 		ordering = ["room_number"]
@@ -48,11 +47,9 @@ class Room(models.Model):
 			self.TYPE_DORM: 4,
 		}
 		self.capacity = capacity_by_type.get(self.room_type, self.capacity)
+		if self.available_beds > self.capacity:
+			self.available_beds = self.capacity
 		super().save(*args, **kwargs)
-
-	def available_beds(self):
-		booked_beds = self.bookings.filter(status=Booking.STATUS_BOOKED).count()
-		return max(self.capacity - booked_beds, 0)
 
 
 class Bed(models.Model):

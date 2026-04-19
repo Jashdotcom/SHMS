@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 
 from accounts.models import User
@@ -15,9 +14,7 @@ def _is_admin_user(user):
 
 @login_required
 def room_list_view(request):
-	rooms = Room.objects.select_related("hostel").annotate(
-		available_beds_count=Count("beds", filter=Q(beds__is_available=True))
-	)
+	rooms = Room.objects.select_related("hostel")
 	return render(request, "hostel/rooms.html", {"rooms": rooms})
 
 
@@ -29,7 +26,7 @@ def add_room_view(request):
 			room = form.save()
 			Bed.objects.bulk_create(
 				[
-					Bed(room=room, bed_number=f"B{i}", is_available=True)
+					Bed(room=room, bed_number=f"B{i}", is_available=i <= room.available_beds)
 					for i in range(1, room.capacity + 1)
 				]
 			)
