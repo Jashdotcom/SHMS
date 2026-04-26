@@ -4,7 +4,7 @@ A web-based application to simplify and automate hostel operations such as **roo
 
 ---
 
-# 🚀 Features 
+#  Features 
 
 ## 👨‍🎓 Student
 
