@@ -1,11 +1,12 @@
 # 🏨 Smart Hostel Management System (SHMS)
 
-A web-based application to simplify and automate hostel operations such as **room booking, payment tracking, and service management** with role-based access for **students and administrators**.
+A web-based application to simplify and automate hostel operations such as **room booking, payment tracking, service management, announcements, and reporting** with role-based access for **students and administrators**.
 
+---
 
 # 🚀 Features 
 
- ## 👨‍🎓 Student
+## 👨‍🎓 Student
 
 * View available rooms & beds
 * Book rooms with real-time bed availability
@@ -14,16 +15,19 @@ A web-based application to simplify and automate hostel operations such as **roo
 * View payment status (Paid / Unpaid / Partial)
 * Download payment receipt in **PDF format**
 * Raise service/complaint requests
+* View announcements from admin
 
 ---
 
- ## 👨‍💼 Admin
+## 👨‍💼 Admin
 
 * Manage rooms and bed capacity
 * Track bookings with filters (Today / Tomorrow / Date)
 * Update payment status
 * Download payment receipts
 * Manage service & complaint requests
+* Post announcements for students
+* Export booking data in **Excel format**
 * Role-based UI (restricted access to student features)
 
 ---
@@ -33,8 +37,39 @@ A web-based application to simplify and automate hostel operations such as **roo
 * ✅ Dynamic bed allocation based on availability
 * ✅ Role-based access control (Admin vs Student)
 * ✅ PDF receipt generation using ReportLab
-* ✅ Real-time booking and payment tracking
+* ✅ Excel export for booking reports (admin only)
+* ✅ Announcement system for communication
 * ✅ Clean and user-friendly interface
+* ✅ Accurate booking records (no duplicate entries)
+
+---
+
+## 📢 Announcement System
+
+* Admin can:
+  * Create announcements (e.g., maintenance, notices)
+  * Update or delete announcements
+* Students can:
+  * View announcements on dashboard
+
+---
+
+## 📊 Excel Export Feature
+
+* Admin can download all booking data in **Excel (.xlsx)** format
+* Includes:
+  * Student Name
+  * Booked On
+  * Room Number
+  * Bed Number
+  * From Date
+  * To Date
+  * Status
+* Features:
+  * Auto-adjusted column width
+  * Proper date formatting
+  * Clean and readable layout
+  * No duplicate entries
 
 ---
 
@@ -47,6 +82,7 @@ A web-based application to simplify and automate hostel operations such as **roo
   * Paid
   * Unpaid
   * Partial
+
 * Admin updates payment status
 * Students can view status and download receipts
 
@@ -60,11 +96,11 @@ A web-based application to simplify and automate hostel operations such as **roo
 * **Backend:** Django (Python)
 * **Database:** SQLite
 * **PDF Generation:** ReportLab
+* **Excel Export:** OpenPyXL
 
 ---
 
 ## 📸 Screenshots
-
 
 ### 🛏️ Room Booking
 ![Room Booking](https://github.com/user-attachments/assets/aa737466-9c73-4401-bd5d-185bda16ce3e)
@@ -78,11 +114,6 @@ A web-based application to simplify and automate hostel operations such as **roo
 ### 🧾 Receipt
 ![Receipt](https://github.com/user-attachments/assets/65521260-847a-45f0-a0af-4952c4116719)
 
-
-
-
-
-
 ---
 
 ## ⚙️ Installation & Setup
@@ -92,93 +123,3 @@ A web-based application to simplify and automate hostel operations such as **roo
 ```bash
 git clone https://github.com/Jashdotcom/SHMS.git
 cd SHMS
-```
-
-2. Create virtual environment:
-
-```bash
-python -m venv venv
-```
-
-3. Activate virtual environment:
-
-```bash
-venv\Scripts\activate   # Windows
-```
-
-4. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-5. Apply migrations:
-
-```bash
-python manage.py migrate
-```
-
-6. Run server:
-
-```bash
-python manage.py runserver
-```
-
-7. Open in browser:
-
-```
-http://127.0.0.1:8000/
-```
-
----
-
-## 🔐 Roles & Access
-
-| Feature          | Student | Admin |
-| ---------------- | ------- | ----- |
-| Book Room        | ✅       | ❌     |
-| View Bookings    | ❌       | ✅     |
-| Download Receipt | ✅       | ✅     |
-| Update Payments  | ❌       | ✅     |
-| Manage Services  | ❌       | ✅     |
-
----
-
-## 📄 PDF Receipt Feature
-
-* Students can download payment receipts
-* Admin can also download receipts
-* Includes:
-
-  * Student details
-  * Amount paid (₹)
-  * Late fee
-  * Payment status
-
----
-
-## 🔮 Future Enhancements
-
-* Online payment gateway integration
-* Mobile application
-* Email/SMS notifications
-* Analytics dashboard
-
----
-
-## 👨‍💻 Author
-
-**Jash Mistry**
-GitHub: https://github.com/Jashdotcom
-
----
-
-## ⭐ Acknowledgement
-
-This project was developed as part of academic learning to demonstrate real-world hostel management automation.
-
----
-
-## 📌 License
-
-This project is for educational purposes only.
