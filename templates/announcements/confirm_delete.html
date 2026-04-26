@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Announcement | HoMS{% endblock %}
+
+{% block content %}
+<div class="card card-soft mx-auto" style="max-width: 640px;">
+    <div class="card-body p-4">
+        <h4 class="mb-2 text-danger">Delete Announcement</h4>
+        <p class="mb-3">Are you sure you want to delete <strong>{{ announcement.title }}</strong>?</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a href="{% url 'announcements:list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

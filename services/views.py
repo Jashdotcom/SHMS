@@ -1,6 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect, render
+from django.conf import settings
 
 from accounts.models import User
 
@@ -91,7 +93,27 @@ def update_service_status(request, id):
 		if new_status in allowed_statuses:
 			service.status = new_status
 			service.save(update_fields=["status"])
-			messages.success(request, "Status updated successfully")
+
+			if service.user.email:
+				subject = "Service Request Update"
+				message = (
+					f"Hello {service.user.username},\n\n"
+					f"Your service request '{service.get_request_type_display()}' status has been updated "
+					f"to: {service.get_status_display()}.\n\n"
+					"Thank you,\n"
+					"SHMS Team"
+				)
+				send_mail(
+					subject,
+					message,
+					settings.DEFAULT_FROM_EMAIL,
+					[service.user.email],
+					fail_silently=False,
+				)
+				messages.success(request, "Status updated and email sent.")
+			else:
+				messages.warning(request, "Status updated, but student email is not available.")
+
 			return redirect("services:list")
 		messages.error(request, "Invalid status selected.")
 

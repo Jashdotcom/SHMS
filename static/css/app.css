@@ -143,6 +143,27 @@ h6,
     letter-spacing: 0.03em;
 }
 
+.announcement-list {
+    display: grid;
+    gap: 12px;
+}
+
+.announcement-item,
+.announcement-card {
+    border: 1px solid #dce5ff;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fbff 100%);
+}
+
+.announcement-item {
+    padding: 12px;
+}
+
+.announcement-recent {
+    border-left: 4px solid var(--accent);
+    box-shadow: 0 12px 24px rgba(255, 138, 0, 0.12);
+}
+
 @keyframes fadeUp {
     from {
         opacity: 0;

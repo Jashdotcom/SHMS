@@ -90,6 +90,34 @@
     </div>
 </div>
 
+<div class="card card-soft mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">📢 Announcements</h5>
+            <a href="{% url 'announcements:list' %}" class="btn btn-sm btn-outline-primary">View all</a>
+        </div>
+
+        <div class="announcement-list">
+            {% for announcement in latest_announcements %}
+            <div class="announcement-item {% if forloop.counter <= 2 %}announcement-recent{% endif %}">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <h6 class="mb-1">{{ announcement.title }}</h6>
+                    {% if forloop.counter <= 2 %}
+                    <span class="badge text-bg-warning">Recent</span>
+                    {% endif %}
+                </div>
+                <p class="mb-2 text-secondary">{{ announcement.message|linebreaksbr }}</p>
+                <div class="small text-secondary">
+                    {{ announcement.created_at|date:"d M Y, h:i A" }}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-secondary">No announcements yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 {% if request.user.role == "admin" or request.user.is_superuser %}
 <div class="row g-3 mb-3">
     <div class="col-12">

@@ -30,6 +30,7 @@
             {% if user.is_authenticated and user.role == "admin" %}
             <a class="nav-link" href="{% url 'bookings:history' %}"><i class="fa-solid fa-clipboard-list me-2"></i>View Bookings</a>
             {% endif %}
+            <a class="nav-link" href="{% url 'announcements:list' %}"><i class="fa-solid fa-bullhorn me-2"></i>Announcements</a>
             <a class="nav-link" href="{% url 'payments:list' %}"><i class="fa-solid fa-wallet me-2"></i>Payments</a>
             <a class="nav-link" href="{% url 'services:list' %}"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Services</a>
         </nav>

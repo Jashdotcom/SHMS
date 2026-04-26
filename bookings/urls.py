@@ -6,6 +6,7 @@ from .views import (
     booking_qr_view,
     cancel_booking_view,
     check_in_view,
+    export_bookings_excel,
 )
 
 app_name = "bookings"
@@ -16,4 +17,5 @@ urlpatterns = [
     path("bookings/<int:booking_id>/qr", booking_qr_view, name="qr"),
     path("bookings/history", booking_history_view, name="history"),
     path("bookings/cancel/<int:booking_id>", cancel_booking_view, name="cancel"),
+    path("bookings/export/excel/", export_bookings_excel, name="export_excel"),
 ]

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | HoMS{% endblock %}
+
+{% block content %}
+<div class="card card-soft mx-auto" style="max-width: 720px;">
+    <div class="card-body p-4">
+        <h4 class="mb-3">{{ page_title }}</h4>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                {{ form.title }}
+                {% for error in form.title.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Message</label>
+                {{ form.message }}
+                {% for error in form.message.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+            <a href="{% url 'announcements:list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

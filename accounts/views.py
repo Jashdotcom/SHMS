@@ -10,6 +10,7 @@ from django.shortcuts import redirect, render
 from bookings.models import Booking
 from hostel.models import Room
 from payments.models import Payment
+from announcements.models import Announcement
 
 from .forms import LoginForm, RegisterForm
 from .models import User
@@ -68,6 +69,7 @@ def dashboard_view(request):
 	total_students = User.objects.filter(role=User.ROLE_STUDENT).count()
 	rooms_booked = Booking.objects.filter(status=Booking.STATUS_BOOKED).values("room").distinct().count()
 	available_beds = Room.objects.aggregate(total=Sum("available_beds"))["total"] or 0
+	latest_announcements = Announcement.objects.select_related("created_by").all()[:5]
 
 	payment_summary = Payment.objects.aggregate(
 		paid=Count("id", filter=Q(status=Payment.STATUS_PAID)),
@@ -106,6 +108,7 @@ def dashboard_view(request):
 		"available_beds": available_beds,
 		"payment_summary": payment_summary,
 		"recent_bookings": recent_bookings,
+		"latest_announcements": latest_announcements,
 		"chart_labels": ["Paid", "Partial", "Unpaid"],
 		"chart_values": [
 			payment_summary["paid"] or 0,

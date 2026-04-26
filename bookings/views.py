@@ -1,17 +1,56 @@
 from datetime import date, timedelta
+import re
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
 
 from accounts.models import User
 from hostel.models import Room
 
 from .forms import BookingForm
 from .models import Booking
+
+
+def _is_admin_user(user):
+	return user.is_authenticated and (user.is_superuser or user.is_staff or user.role == User.ROLE_ADMIN)
+
+
+def _get_export_bed_label(booking):
+	room_number = (booking.room.room_number or "").strip()
+	prefix = room_number.split("-")[0].strip() if room_number else ""
+	prefix = prefix[:1].upper() if prefix else ""
+
+	bed_number = (booking.bed.bed_number or "").strip()
+	match = re.search(r"(\d+)", bed_number)
+	bed_index = match.group(1) if match else "1"
+
+	return f"{prefix}{bed_index}" if prefix else bed_number
+
+
+def _get_latest_unique_bookings_for_export():
+	# Keep only the newest record (highest id) for the same booking identity.
+	bookings = Booking.objects.select_related("user", "room", "bed").order_by("-id")
+	latest_by_key = {}
+
+	for booking in bookings:
+		key = (
+			booking.user_id,
+			booking.room_id,
+			booking.bed_id,
+			booking.start_date,
+			booking.end_date,
+		)
+		if key not in latest_by_key:
+			latest_by_key[key] = booking
+
+	return list(latest_by_key.values())
 
 
 @login_required
@@ -117,3 +156,49 @@ def cancel_booking_view(request, booking_id):
 		messages.warning(request, "Only active bookings can be cancelled.")
 
 	return redirect("bookings:history")
+
+
+@login_required
+def export_bookings_excel(request):
+	if not _is_admin_user(request.user):
+		return HttpResponseForbidden("Access denied")
+
+	bookings = _get_latest_unique_bookings_for_export()
+
+	workbook = Workbook()
+	worksheet = workbook.active
+	worksheet.title = "Bookings"
+
+	headers = ["Student Name", "Booked On", "Room Number", "Bed Number", "From Date", "To Date", "Status"]
+	worksheet.append(headers)
+	for cell in worksheet[1]:
+		cell.font = Font(bold=True)
+
+	for booking in bookings:
+		worksheet.append(
+			[
+				booking.user.get_full_name() or booking.user.username,
+				booking.created_at.strftime("%d-%m-%Y") if booking.created_at else "",
+				booking.room.room_number,
+				_get_export_bed_label(booking),
+				booking.start_date.strftime("%d-%m-%Y"),
+				booking.end_date.strftime("%d-%m-%Y"),
+				booking.get_status_display(),
+			]
+		)
+
+	# Auto-fit columns to keep all content fully visible.
+	for col_idx, column_cells in enumerate(worksheet.columns, start=1):
+		max_length = 0
+		for cell in column_cells:
+			value = "" if cell.value is None else str(cell.value)
+			if len(value) > max_length:
+				max_length = len(value)
+		worksheet.column_dimensions[get_column_letter(col_idx)].width = max_length + 2
+
+	response = HttpResponse(
+		content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	)
+	response["Content-Disposition"] = 'attachment; filename="bookings.xlsx"'
+	workbook.save(response)
+	return response
