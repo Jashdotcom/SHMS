@@ -120,6 +120,24 @@ A web-based application to simplify and automate hostel operations such as **roo
 
 1. Clone the repository:
 
-```bash
+'bash
 git clone https://github.com/Jashdotcom/SHMS.git
 cd SHMS
+
+2. Create virtual environment:
+   python -m venv venv
+
+3. Activate virtual environment:
+   venv\Scripts\activate   # Windows
+
+4. Install dependencies:
+   pip install -r requirements.txt
+
+6. Apply migrations:
+   python manage.py migrate
+   
+7. Run server:
+   python manage.py runserver
+
+8. Open in browser:
+   http://127.0.0.1:8000/
