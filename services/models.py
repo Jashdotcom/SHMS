@@ -16,6 +16,7 @@ class Complaint(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="complaints")
 	issue = models.TextField()
 	image = models.ImageField(upload_to="complaints/", null=True, blank=True)
+	attachment = models.FileField(upload_to="complaints/attachments/", null=True, blank=True)
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
@@ -34,6 +35,12 @@ class Complaint(models.Model):
 		elif self.status == self.STATUS_RESOLVED:
 			return "success"
 		return "secondary"
+
+	def has_image(self):
+		return bool(self.image)
+
+	def has_attachment(self):
+		return bool(self.attachment)
 
 
 class ServiceRequest(models.Model):
@@ -58,6 +65,7 @@ class ServiceRequest(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="service_requests")
 	request_type = models.CharField(max_length=20, choices=REQUEST_TYPE_CHOICES)
 	details = models.TextField(blank=True)
+	attachment = models.FileField(upload_to="services/attachments/", null=True, blank=True)
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_REQUESTED)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)

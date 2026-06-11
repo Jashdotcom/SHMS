@@ -35,6 +35,7 @@ urlpatterns = [
     path('', include('payments.urls')),
     path('', include('services.urls')),
     path('', include('announcements.urls')),
+    path('api/', include('core.api.urls')),
 ]
 
 if settings.DEBUG:

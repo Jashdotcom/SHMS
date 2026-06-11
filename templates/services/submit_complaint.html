@@ -18,8 +18,16 @@
             <div class="mb-3">
                 <label class="form-label">Upload Proof Image <span class="text-secondary">(optional)</span></label>
                 {{ form.image }}
+                <div id="complaint-image-preview" class="mt-3"></div>
                 <small class="text-secondary d-block mt-2">Supported formats: JPG, PNG, GIF. Max 5MB.</small>
                 {% if form.image.errors %}<div class="invalid-feedback d-block">{{ form.image.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Upload Attachment <span class="text-secondary">(optional)</span></label>
+                {{ form.attachment }}
+                <div id="complaint-attachment-preview" class="mt-3"></div>
+                <small class="text-secondary d-block mt-2">Images, PDF, DOC, or DOCX files up to 10MB.</small>
+                {% if form.attachment.errors %}<div class="invalid-feedback d-block">{{ form.attachment.errors.0 }}</div>{% endif %}
             </div>
             <button type="submit" class="btn btn-danger">Submit Complaint</button>
             <a href="{% url 'services:complaints' %}" class="btn btn-outline-secondary">View My Complaints</a>

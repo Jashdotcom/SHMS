@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h3 style="margin-top: 0;">{{ title }}</h3>
+<p>{{ message }}</p>
+{% if action_url %}
+<p><a href="{{ action_url }}" style="display: inline-block; background: #0d6efd; color: #fff; padding: 10px 16px; border-radius: 10px; text-decoration: none;">View Details</a></p>
+{% endif %}
+{% endblock %}

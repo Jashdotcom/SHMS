@@ -164,6 +164,33 @@ h6,
     box-shadow: 0 12px 24px rgba(255, 138, 0, 0.12);
 }
 
+.metric-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -24px -24px auto;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(13, 110, 253, 0.12), transparent 70%);
+}
+
+.mobile-table {
+    min-width: 760px;
+}
+
+.notification-item {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.offcanvas {
+    width: min(420px, 100vw);
+}
+
 @keyframes fadeUp {
     from {
         opacity: 0;
@@ -186,5 +213,28 @@ h6,
         height: auto;
         border-right: 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mobile-table {
+        min-width: 680px;
+    }
+}
+
+@media (max-width: 576px) {
+    .main {
+        padding: 12px;
+    }
+
+    .mobile-table {
+        min-width: 640px;
+    }
+
+    .card-body {
+        padding: 1rem;
     }
 }

@@ -1,9 +1,11 @@
+from datetime import timedelta
 from io import BytesIO
 
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 # Requires: pip install qrcode pillow
 try:
@@ -28,6 +30,7 @@ class Booking(models.Model):
 	bed = models.ForeignKey("hostel.Bed", on_delete=models.PROTECT, related_name="bookings")
 	start_date = models.DateField()
 	end_date = models.DateField()
+	expires_at = models.DateTimeField(blank=True, null=True)
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_BOOKED)
 	qr_code = models.ImageField(upload_to="bookings/qr_codes/", blank=True, null=True)
 	check_in_at = models.DateTimeField(blank=True, null=True)
@@ -75,6 +78,8 @@ class Booking(models.Model):
 		self.full_clean()
 		is_new = self.pk is None
 		previous = None
+		if not self.expires_at and self.status == self.STATUS_BOOKED:
+			self.expires_at = timezone.now() + timedelta(hours=getattr(settings, "BOOKING_EXPIRY_HOURS", 24))
 		if self.pk:
 			previous = Booking.objects.filter(pk=self.pk).values("status", "bed_id", "room_id").first()
 

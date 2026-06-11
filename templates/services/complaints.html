@@ -7,8 +7,17 @@
 <div class="row">
     <div class="col-lg-8">
         <div class="card card-soft mb-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 <h5 class="mb-0">My Complaints</h5>
+                <form method="get" class="d-flex gap-2 align-items-center">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {% if status_query == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="in_progress" {% if status_query == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="resolved" {% if status_query == 'resolved' %}selected{% endif %}>Resolved</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
+                </form>
                 <a href="{% url 'services:complaint' %}" class="btn btn-sm btn-danger">+ New Complaint</a>
             </div>
             <div class="card-body">
@@ -35,6 +44,9 @@
                                 </div>
                                 <p class="card-text small text-secondary mb-2">{{ complaint.created_at|date:"M d, Y H:i" }}</p>
                                 <p class="card-text">{{ complaint.issue|truncatewords:25 }}</p>
+                                {% if complaint.attachment %}
+                                <a href="{{ complaint.attachment.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">View Attachment</a>
+                                {% endif %}
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#complaint-{{ complaint.id }}">
                                     View Details
                                 </button>
@@ -68,6 +80,14 @@
                                         <label class="text-secondary small">Proof Image</label>
                                         <div class="mt-2">
                                             <img src="{{ complaint.image.url }}" alt="Complaint image" class="img-fluid rounded" style="max-width: 100%;">
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if complaint.attachment %}
+                                    <div class="mb-3">
+                                        <label class="text-secondary small">Attachment</label>
+                                        <div class="mt-2">
+                                            <a href="{{ complaint.attachment.url }}" target="_blank">Download / View file</a>
                                         </div>
                                     </div>
                                     {% endif %}
@@ -108,15 +128,15 @@
                     <p class="mb-2">Status breakdown:</p>
                     <div class="d-flex justify-content-between mb-1">
                         <span>Pending</span>
-                        <span class="badge text-bg-warning">0</span>
+                        <span class="badge text-bg-warning">{{ status_summary.pending }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
                         <span>In Progress</span>
-                        <span class="badge text-bg-info">0</span>
+                        <span class="badge text-bg-info">{{ status_summary.in_progress }}</span>
                     </div>
                     <div class="d-flex justify-content-between">
                         <span>Resolved</span>
-                        <span class="badge text-bg-success">0</span>
+                        <span class="badge text-bg-success">{{ status_summary.resolved }}</span>
                     </div>
                 </div>
             </div>

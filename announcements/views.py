@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import User
+from core.emails import send_templated_email
+from core.notifications import create_notification
 
 from .forms import AnnouncementForm
 from .models import Announcement
@@ -34,6 +36,23 @@ def announcement_create_view(request):
             announcement = form.save(commit=False)
             announcement.created_by = request.user
             announcement.save()
+            students = User.objects.filter(role=User.ROLE_STUDENT).exclude(email="")
+            for student in students:
+                send_templated_email(
+                    subject=f"Announcement: {announcement.title} | SHMS",
+                    template_name="emails/notification.html",
+                    context={
+                        "title": announcement.title,
+                        "message": announcement.message,
+                        "action_url": "",
+                    },
+                    recipients=[student.email],
+                )
+                create_notification(
+                    recipient=student,
+                    title=announcement.title,
+                    message=announcement.message,
+                )
             messages.success(request, "Announcement posted successfully.")
             return redirect("announcements:list")
     else:

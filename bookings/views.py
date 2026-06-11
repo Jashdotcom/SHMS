@@ -3,8 +3,11 @@ import re
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseForbidden
+from django.urls import reverse
+from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from openpyxl import Workbook
@@ -13,6 +16,8 @@ from openpyxl.utils import get_column_letter
 
 from accounts.models import User
 from hostel.models import Room
+from core.emails import send_templated_email
+from core.notifications import create_notification
 
 from .forms import BookingForm
 from .models import Booking
@@ -68,6 +73,23 @@ def book_room_view(request):
 				booking.user = request.user
 				booking.status = Booking.STATUS_BOOKED
 				booking.save()
+				if request.user.email:
+					send_templated_email(
+						subject="Booking Confirmation | SHMS",
+						template_name="emails/notification.html",
+						context={
+							"title": "Booking confirmed",
+							"message": f"Your booking for Room {booking.room.room_number} and Bed {booking.bed.bed_number} has been confirmed.",
+							"action_url": request.build_absolute_uri(reverse("bookings:qr", args=[booking.id])),
+						},
+						recipients=[request.user.email],
+					)
+				create_notification(
+					recipient=request.user,
+					title="Booking confirmed",
+					message=f"Your booking for Room {booking.room.room_number} / Bed {booking.bed.bed_number} is confirmed.",
+					related_url=booking.get_absolute_url() if hasattr(booking, "get_absolute_url") else "",
+				)
 
 			messages.success(request, "Booking created successfully. QR code generated.")
 			return redirect("bookings:qr", booking_id=booking.id)
@@ -84,10 +106,14 @@ def booking_history_view(request):
 
 	bookings = Booking.objects.select_related("user", "room", "bed", "room__hostel")
 	is_admin = True
-	filter_type = ""
-	selected_date = ""
 	filter_type = request.GET.get("filter") or ""
 	selected_date = request.GET.get("date") or ""
+	room_query = request.GET.get("room") or ""
+	student_query = request.GET.get("student") or ""
+	status_query = request.GET.get("status") or ""
+	start_date = parse_date(request.GET.get("start_date") or "")
+	end_date = parse_date(request.GET.get("end_date") or "")
+
 	if filter_type == "today":
 		bookings = bookings.filter(start_date=date.today())
 	elif filter_type == "tomorrow":
@@ -95,10 +121,30 @@ def booking_history_view(request):
 	elif filter_type == "custom" and selected_date:
 		bookings = bookings.filter(start_date=selected_date)
 
+	if room_query:
+		bookings = bookings.filter(room__room_number__icontains=room_query)
+	if student_query:
+		bookings = bookings.filter(user__username__icontains=student_query)
+	if status_query:
+		bookings = bookings.filter(status=status_query)
+	if start_date:
+		bookings = bookings.filter(created_at__date__gte=start_date)
+	if end_date:
+		bookings = bookings.filter(created_at__date__lte=end_date)
+
+	paginator = Paginator(bookings.order_by("-created_at"), 10)
+	page_number = request.GET.get("page")
+	bookings_page = paginator.get_page(page_number)
+
 	context = {
-		"bookings": bookings,
+		"bookings": bookings_page,
 		"active_filter": filter_type,
 		"selected_date": selected_date,
+		"room_query": room_query,
+		"student_query": student_query,
+		"status_query": status_query,
+		"start_date": start_date.isoformat() if start_date else "",
+		"end_date": end_date.isoformat() if end_date else "",
 		"is_admin": is_admin,
 	}
 	return render(request, "bookings/history.html", context)

@@ -24,6 +24,9 @@
         <nav class="nav flex-column">
             <a class="nav-link" href="{% url 'accounts:dashboard' %}"><i class="fa-solid fa-chart-line me-2"></i>Dashboard</a>
             <a class="nav-link" href="{% url 'hostel:rooms' %}"><i class="fa-solid fa-bed me-2"></i>Rooms</a>
+            {% if is_admin_user %}
+            <a class="nav-link" href="{% url 'accounts:analytics' %}"><i class="fa-solid fa-chart-pie me-2"></i>Analytics</a>
+            {% endif %}
             {% if user.is_authenticated and user.role == "student" %}
             <a class="nav-link" href="{% url 'bookings:book_room' %}"><i class="fa-solid fa-calendar-check me-2"></i>Book Room</a>
             {% endif %}

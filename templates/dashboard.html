@@ -5,145 +5,146 @@
 
 {% block content %}
 <div class="card card-soft mb-3">
-    <div class="card-body py-3">
-        <h4 class="mb-0">Welcome, {{ request.user.first_name }}</h4>
+    <div class="card-body py-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            {% if request.user.role|lower == 'admin' %}
+            <div class="text-secondary small text-uppercase">Analytics Dashboard</div>
+            <h4 class="mb-1">Welcome, {{ request.user.first_name|default:request.user.username }}</h4>
+            <div class="text-secondary">Monitor hostel operations, payments, complaints, and occupancy in one place.</div>
+        </div>
+        {% endif %}
+        {% if is_admin_user %}
+        <form method="get" class="d-flex flex-wrap gap-2 align-items-end">
+            <div>
+                <label class="form-label small mb-1">From</label>
+                <input type="date" name="start_date" value="{{ start_date }}" class="form-control form-control-sm">
+            </div>
+            <div>
+                <label class="form-label small mb-1">To</label>
+                <input type="date" name="end_date" value="{{ end_date }}" class="form-control form-control-sm">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+        </form>
+        {% endif %}
     </div>
 </div>
 
 <div class="row g-3 mb-3">
     <div class="col-md-6 col-xl-3">
-        <div class="card card-soft h-100">
+        <div class="card card-soft metric-card h-100">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-secondary small">Total Students</div>
-                        <h4 class="mb-0">{{ total_students }}</h4>
-                    </div>
-                    <i class="fa-solid fa-users fs-4 text-primary"></i>
+                <div class="text-secondary small">Total Students</div>
+                <div class="d-flex align-items-end justify-content-between mt-2">
+                    <h3 class="mb-0">{{ total_students }}</h3>
+                    <i class="fa-solid fa-users fs-3 text-primary"></i>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
-        <div class="card card-soft h-100">
+        <div class="card card-soft metric-card h-100">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-secondary small">Rooms Booked</div>
-                        <h4 class="mb-0">{{ rooms_booked }}</h4>
-                    </div>
-                    <i class="fa-solid fa-door-open fs-4 text-success"></i>
+                <div class="text-secondary small">Total Bookings</div>
+                <div class="d-flex align-items-end justify-content-between mt-2">
+                    <h3 class="mb-0">{{ total_bookings }}</h3>
+                    <i class="fa-solid fa-calendar-check fs-3 text-success"></i>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
-        <div class="card card-soft h-100">
+        <div class="card card-soft metric-card h-100">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-secondary small">Available Beds</div>
-                        <h4 class="mb-0">{{ available_beds }}</h4>
-                    </div>
-                    <i class="fa-solid fa-bed fs-4 text-warning"></i>
+                <div class="text-secondary small">Occupancy</div>
+                <div class="d-flex align-items-end justify-content-between mt-2">
+                    <h3 class="mb-0">{{ occupancy_percentage }}%</h3>
+                    <i class="fa-solid fa-bed fs-3 text-warning"></i>
+                </div>
+                <div class="progress mt-3" style="height: 8px;">
+                    <div class="progress-bar bg-warning" style="width: {{ occupancy_percentage }}%"></div>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-6 col-xl-3">
+        <div class="card card-soft metric-card h-100">
+            <div class="card-body">
+                <div class="text-secondary small">Unpaid Payments</div>
+                <div class="d-flex align-items-end justify-content-between mt-2">
+                    <h3 class="mb-0">{{ payment_summary.unpaid }}</h3>
+                    <i class="fa-solid fa-file-invoice-dollar fs-3 text-danger"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_admin_user %}
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
         <div class="card card-soft h-100">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-secondary small">Total Payments</div>
-                        <h4 class="mb-0">{{ payment_summary.paid|add:payment_summary.partial|add:payment_summary.unpaid }}</h4>
-                    </div>
-                    <i class="fa-solid fa-file-invoice-dollar fs-4 text-danger"></i>
+                <div class="text-secondary small">Complaints</div>
+                <div class="row g-2 mt-2 text-center">
+                    <div class="col-4"><div class="p-2 border rounded-3"><div class="small">Pending</div><strong class="text-warning">{{ complaint_summary.pending }}</strong></div></div>
+                    <div class="col-4"><div class="p-2 border rounded-3"><div class="small">Active</div><strong class="text-info">{{ complaint_summary.in_progress }}</strong></div></div>
+                    <div class="col-4"><div class="p-2 border rounded-3"><div class="small">Resolved</div><strong class="text-success">{{ complaint_summary.resolved }}</strong></div></div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card card-soft h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Payment Status</h5>
+                    <span class="small text-secondary">Filtered by selected date range</span>
+                </div>
+                {{ payment_chart_labels|json_script:"payment-chart-labels" }}
+                {{ payment_chart_values|json_script:"payment-chart-values" }}
+                <canvas id="paymentsChart" height="200"></canvas>
             </div>
         </div>
     </div>
 </div>
 
 <div class="row g-3 mb-3">
-    <div class="col-lg-5">
+    <div class="col-lg-6">
         <div class="card card-soft h-100">
             <div class="card-body">
-                <h5 class="mb-3">Payment Distribution</h5>
-                {{ chart_labels|json_script:"chart-labels" }}
-                {{ chart_values|json_script:"chart-values" }}
-                <canvas id="paymentsChart" height="220"></canvas>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Monthly Bookings</h5>
+                </div>
+                {{ monthly_bookings_labels|json_script:"monthly-bookings-labels" }}
+                {{ monthly_bookings_values|json_script:"monthly-bookings-values" }}
+                <canvas id="bookingsTrendChart" height="220"></canvas>
             </div>
         </div>
     </div>
-    <div class="col-lg-7">
+    <div class="col-lg-6">
         <div class="card card-soft h-100">
             <div class="card-body">
-                <h5 class="mb-3">Payment Summary</h5>
-                <div class="row g-2">
-                    <div class="col-md-4"><div class="p-3 border rounded-3 text-center"><div class="small text-secondary">Paid</div><h5 class="mb-0 text-success">{{ payment_summary.paid }}</h5></div></div>
-                    <div class="col-md-4"><div class="p-3 border rounded-3 text-center"><div class="small text-secondary">Partial</div><h5 class="mb-0 text-warning">{{ payment_summary.partial }}</h5></div></div>
-                    <div class="col-md-4"><div class="p-3 border rounded-3 text-center"><div class="small text-secondary">Unpaid</div><h5 class="mb-0 text-danger">{{ payment_summary.unpaid }}</h5></div></div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Collected Payments</h5>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="card card-soft mb-3">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">📢 Announcements</h5>
-            <a href="{% url 'announcements:list' %}" class="btn btn-sm btn-outline-primary">View all</a>
-        </div>
-
-        <div class="announcement-list">
-            {% for announcement in latest_announcements %}
-            <div class="announcement-item {% if forloop.counter <= 2 %}announcement-recent{% endif %}">
-                <div class="d-flex justify-content-between align-items-start gap-2">
-                    <h6 class="mb-1">{{ announcement.title }}</h6>
-                    {% if forloop.counter <= 2 %}
-                    <span class="badge text-bg-warning">Recent</span>
-                    {% endif %}
-                </div>
-                <p class="mb-2 text-secondary">{{ announcement.message|linebreaksbr }}</p>
-                <div class="small text-secondary">
-                    {{ announcement.created_at|date:"d M Y, h:i A" }}
-                </div>
-            </div>
-            {% empty %}
-            <div class="text-secondary">No announcements yet.</div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-{% if request.user.role == "admin" or request.user.is_superuser %}
-<div class="row g-3 mb-3">
-    <div class="col-12">
-        <div class="card card-soft">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Monthly Revenue</h5>
-                    <span class="small text-secondary">Paid payments only</span>
-                </div>
-                {{ revenue_chart_labels|json_script:"revenue-chart-labels" }}
-                {{ revenue_chart_values|json_script:"revenue-chart-values" }}
-                <canvas id="revenueChart" height="110"></canvas>
+                {{ monthly_payments_labels|json_script:"monthly-payments-labels" }}
+                {{ monthly_payments_values|json_script:"monthly-payments-values" }}
+                <canvas id="paymentsTrendChart" height="220"></canvas>
             </div>
         </div>
     </div>
 </div>
 {% endif %}
 
-<div class="card card-soft">
+<div class="card card-soft mb-3">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">Recent Bookings</h5>
             <a href="{% url 'bookings:history' %}" class="btn btn-sm btn-outline-primary">View all</a>
         </div>
         <div class="table-responsive">
-            <table class="table align-middle mb-0">
+            <table class="table align-middle mb-0 mobile-table">
                 <thead>
                 <tr>
                     <th>Student</th>
@@ -175,6 +176,31 @@
                 {% endfor %}
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<div class="card card-soft">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Announcements</h5>
+            <a href="{% url 'announcements:list' %}" class="btn btn-sm btn-outline-primary">View all</a>
+        </div>
+        <div class="announcement-list">
+            {% for announcement in latest_announcements %}
+            <div class="announcement-item {% if forloop.counter <= 2 %}announcement-recent{% endif %}">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <h6 class="mb-1">{{ announcement.title }}</h6>
+                    {% if forloop.counter <= 2 %}
+                    <span class="badge text-bg-warning">Recent</span>
+                    {% endif %}
+                </div>
+                <p class="mb-2 text-secondary">{{ announcement.message|linebreaksbr }}</p>
+                <div class="small text-secondary">{{ announcement.created_at|date:"d M Y, h:i A" }}</div>
+            </div>
+            {% empty %}
+            <div class="text-secondary">No announcements yet.</div>
+            {% endfor %}
         </div>
     </div>
 </div>

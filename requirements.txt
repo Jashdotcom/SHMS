@@ -3,3 +3,11 @@ qrcode[pil]
 Pillow
 reportlab
 openpyxl
+djangorestframework
+djangorestframework-simplejwt
+channels
+channels_redis
+daphne
+python-dotenv
+dj-database-url
+psycopg2-binary

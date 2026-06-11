@@ -2,6 +2,7 @@ from datetime import date
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class Payment(models.Model):
@@ -19,6 +20,8 @@ class Payment(models.Model):
 
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments")
 	amount = models.DecimalField(max_digits=10, decimal_places=2)
+	invoice_number = models.CharField(max_length=32, blank=True, null=True, unique=True)
+	invoice_generated_at = models.DateTimeField(blank=True, null=True)
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_UNPAID)
 	due_date = models.DateField(null=True, blank=True)
 	paid_date = models.DateTimeField(null=True, blank=True)
@@ -49,4 +52,9 @@ class Payment(models.Model):
 	def save(self, *args, **kwargs):
 		if self.status == self.STATUS_PAID and self.paid_date and self.due_date:
 			self.late_fee = self.calculate_late_fee()
+		is_new = self.pk is None
 		super().save(*args, **kwargs)
+		if is_new and not self.invoice_number:
+			self.invoice_number = f"INV-{timezone.now():%Y%m}-{self.pk:05d}"
+			self.invoice_generated_at = timezone.now()
+			super().save(update_fields=["invoice_number", "invoice_generated_at"])
