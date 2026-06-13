@@ -28,7 +28,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-4@603nv6_v)!%2p_bqf!$s6q_v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_bool("DEBUG", True)
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()] or ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()] or ["localhost", "127.0.0.1"] 
+CSRF_TRUSTED_ORIGINS = [ "https://shms-2kww.onrender.com", ]
 
 
 # Application definition
