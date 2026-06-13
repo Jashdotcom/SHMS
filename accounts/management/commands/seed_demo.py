@@ -70,18 +70,26 @@ class Command(BaseCommand):
         end = start + timedelta(days=120)
 
         for student, bed in zip(students, available_beds):
-            booking, created = Booking.objects.get_or_create(
+            booking = Booking.objects.filter(
                 user=student,
                 room=bed.room,
                 bed=bed,
-                defaults={
-                    "start_date": start,
-                    "end_date": end,
-                    "status": Booking.STATUS_BOOKED,
-                },
-            )
-            if created:
-                booking.save()
+            ).order_by("id").first()
+            if booking:
+                Booking.objects.filter(pk=booking.pk).update(
+                    start_date=start,
+                    end_date=end,
+                    status=Booking.STATUS_BOOKED,
+                )
+            else:
+                Booking.objects.create(
+                    user=student,
+                    room=bed.room,
+                    bed=bed,
+                    start_date=start,
+                    end_date=end,
+                    status=Booking.STATUS_BOOKED,
+                )
 
         # Create demo payments with late fee scenarios
         for idx, student in enumerate(students, start=1):
@@ -108,13 +116,19 @@ class Command(BaseCommand):
                 status = Payment.STATUS_UNPAID
                 paid_date = None
             
-            payment = Payment.objects.create(
-                user=student,
-                amount=amount,
-                status=status,
-                due_date=due_date,
-                paid_date=paid_date,
-            )
+            payment = Payment.objects.filter(user=student, due_date=due_date, amount=amount).order_by("id").first()
+            if payment:
+                payment.status = status
+                payment.paid_date = paid_date
+                payment.save()
+            else:
+                Payment.objects.create(
+                    user=student,
+                    amount=amount,
+                    status=status,
+                    due_date=due_date,
+                    paid_date=paid_date,
+                )
 
             complaint_statuses = [Complaint.STATUS_PENDING, Complaint.STATUS_IN_PROGRESS, Complaint.STATUS_RESOLVED]
             complaint_issues = [
@@ -125,18 +139,34 @@ class Command(BaseCommand):
                 "Pest infestation in kitchen area.",
             ]
             
-            Complaint.objects.create(
-                user=student,
-                issue=f"Complaint {idx}: {complaint_issues[idx % len(complaint_issues)]}",
-                status=complaint_statuses[idx % len(complaint_statuses)],
-            )
+            complaint_issue = f"Complaint {idx}: {complaint_issues[idx % len(complaint_issues)]}"
+            complaint = Complaint.objects.filter(user=student, issue=complaint_issue).order_by("id").first()
+            if complaint:
+                complaint.status = complaint_statuses[idx % len(complaint_statuses)]
+                complaint.save(update_fields=["status"])
+            else:
+                Complaint.objects.create(
+                    user=student,
+                    issue=complaint_issue,
+                    status=complaint_statuses[idx % len(complaint_statuses)],
+                )
 
-            ServiceRequest.objects.create(
+            request_type = ServiceRequest.TYPE_CLEANING if idx % 2 == 0 else ServiceRequest.TYPE_MAINTENANCE
+            service_request = ServiceRequest.objects.filter(
                 user=student,
-                request_type=ServiceRequest.TYPE_CLEANING if idx % 2 == 0 else ServiceRequest.TYPE_MAINTENANCE,
+                request_type=request_type,
                 details="Demo service request for hostel operations.",
-                status=ServiceRequest.STATUS_REQUESTED,
-            )
+            ).order_by("id").first()
+            if service_request:
+                service_request.status = ServiceRequest.STATUS_REQUESTED
+                service_request.save(update_fields=["status"])
+            else:
+                ServiceRequest.objects.create(
+                    user=student,
+                    request_type=request_type,
+                    details="Demo service request for hostel operations.",
+                    status=ServiceRequest.STATUS_REQUESTED,
+                )
 
         self.stdout.write(self.style.SUCCESS("Demo seed completed."))
         self.stdout.write("Admin login: username=admin, password=admin123")

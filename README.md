@@ -1,277 +1,111 @@
 # Smart Hostel Management System (SHMS)
 
-<<<<<<< HEAD
-A web-based application to simplify and automate hostel operations such as **room booking, payment tracking, service management, announcements, and reporting** with role-based access for **students and administrators**.
-
----
-
-#  Features 
-
-## 👨‍🎓 Student
-
-* View available rooms & beds
-* Book rooms with real-time bed availability
-* View booking history
-* Cancel bookings
-* View payment status (Paid / Unpaid / Partial)
-* Download payment receipt in **PDF format**
-* Raise service/complaint requests
-* View announcements from admin
-=======
-SHMS is a Django-based hostel management platform for student bookings, bed allocation, payments, complaints, announcements, service requests, analytics, invoices, and API access.
+SHMS is a Django-based hostel management platform for student room booking, bed allocation, payments, complaints, service requests, announcements, analytics, invoices, APIs, and real-time notifications.
 
 ## Highlights
 
 - Role-based access for students and administrators
-- Booking workflow with QR codes and automatic expiry handling
-- Payment tracking with late fees and professional PDF invoices
+- Room booking with bed availability, QR codes, cancellation, and expiry handling
+- Payment tracking with late fees and PDF invoice/receipt generation
 - Complaint and service request management with file uploads
-- Analytics dashboard with Chart.js and date filters
-- Email notifications and real-time in-app notifications
+- Announcement publishing with email and in-app notifications
+- Analytics dashboard powered by Chart.js
 - Django REST Framework API with JWT authentication
-- Deployment-ready settings with `.env` support and PostgreSQL compatibility
+- Django Channels websocket notifications
+- SQLite for development and PostgreSQL-ready production settings
 
 ## Tech Stack
 
-- Django 6
 - Python 3.14
-- SQLite for development
-- PostgreSQL for production
+- Django 6
+- Django REST Framework
+- Simple JWT
+- Django Channels and Daphne
 - Bootstrap 5
 - Chart.js
-- Django REST Framework
-- Django Channels
 - ReportLab
 - OpenPyXL
->>>>>>> 8c3ff29 (implement new features)
 
-## Screenshots
+## Setup
 
-<<<<<<< HEAD
-## 👨‍💼 Admin
+1. Clone the repository and enter the project.
 
-* Manage rooms and bed capacity
-* Track bookings with filters (Today / Tomorrow / Date)
-* Update payment status
-* Download payment receipts
-* Manage service & complaint requests
-* Post announcements for students
-* Export booking data in **Excel format**
-* Role-based UI (restricted access to student features)
-=======
-Add screenshots here after capturing the upgraded UI:
-
-- Dashboard analytics
-- Booking form and QR code
-- Booking history filters
-- Payments and invoice PDF
-- Complaints with uploads
-- Service request management
->>>>>>> 8c3ff29 (implement new features)
-
-## Installation
-
-<<<<<<< HEAD
-## 🧠 Key Highlights
-
-* ✅ Dynamic bed allocation based on availability
-* ✅ Role-based access control (Admin vs Student)
-* ✅ PDF receipt generation using ReportLab
-* ✅ Excel export for booking reports (admin only)
-* ✅ Announcement system for communication
-* ✅ Clean and user-friendly interface
-* ✅ Accurate booking records (no duplicate entries)
-
----
-
-## 📢 Announcement System
-
-* Admin can:
-  * Create announcements (e.g., maintenance, notices)
-  * Update or delete announcements
-* Students can:
-  * View announcements on dashboard
-
----
-
-## 📊 Excel Export Feature
-
-* Admin can download all booking data in **Excel (.xlsx)** format
-* Includes:
-  * Student Name
-  * Booked On
-  * Room Number
-  * Bed Number
-  * From Date
-  * To Date
-  * Status
-* Features:
-  * Auto-adjusted column width
-  * Proper date formatting
-  * Clean and readable layout
-  * No duplicate entries
-
----
-
-## 💳 Payment System
-
-* This project uses a **simulated (dummy) payment system**
-* No real payment gateway or QR-based transactions are implemented
-* Payment statuses are handled manually:
-
-  * Paid
-  * Unpaid
-  * Partial
-
-* Admin updates payment status
-* Students can view status and download receipts
-
-> ⚠️ Note: This system is for academic/demo purposes and does not process real payments.
-
----
-
-## 🛠️ Tech Stack
-
-* **Frontend:** HTML, CSS, JavaScript
-* **Backend:** Django (Python)
-* **Database:** SQLite
-* **PDF Generation:** ReportLab
-* **Excel Export:** OpenPyXL
-
----
-
-## 📸 Screenshots
-
-### 🛏️ Room Booking
-![Room Booking](https://github.com/user-attachments/assets/aa737466-9c73-4401-bd5d-185bda16ce3e)
-
-### 📋 Booking History
-![Booking History](https://github.com/user-attachments/assets/d9cc8ee7-88e3-4fbe-a80b-1798b0d96ec3)
-
-### 💳 Payments
-![Payments](https://github.com/user-attachments/assets/2b45c0bf-7e74-4a1a-8c1b-a6eaa5a04dd4)
-
-### 🧾 Receipt
-![Receipt](https://github.com/user-attachments/assets/65521260-847a-45f0-a0af-4952c4116719)
-
----
-
-## ⚙️ Installation & Setup
-
-1. Clone the repository:
-=======
-1. Clone the repository.
->>>>>>> 8c3ff29 (implement new features)
-
-'bash
+```bash
 git clone https://github.com/Jashdotcom/SHMS.git
 cd SHMS
+```
 
-<<<<<<< HEAD
-2. Create virtual environment:
-   python -m venv venv
-
-3. Activate virtual environment:
-   venv\Scripts\activate   # Windows
-
-4. Install dependencies:
-   pip install -r requirements.txt
-=======
 2. Create and activate a virtual environment.
 
 ```bash
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
 3. Install dependencies.
->>>>>>> 8c3ff29 (implement new features)
 
-6. Apply migrations:
-   python manage.py migrate
-   
-7. Run server:
-   python manage.py runserver
+```bash
+pip install -r requirements.txt
+```
 
-<<<<<<< HEAD
-8. Open in browser:
-   http://127.0.0.1:8000/
-=======
-4. Create the environment file.
+4. Create a local environment file.
 
 ```bash
 copy .env.example .env
 ```
 
-5. Apply migrations.
+5. Apply migrations and create an admin user.
 
 ```bash
 python manage.py migrate
-```
-
-6. Create a superuser.
-
-```bash
 python manage.py createsuperuser
 ```
 
-7. Run the development server.
+6. Run the development server.
 
 ```bash
 python manage.py runserver
 ```
 
+Open `http://127.0.0.1:8000/`.
+
 ## Environment Variables
 
-Use these values in `.env`:
+Use `.env.example` as the source of truth for local configuration.
 
 ```env
-SECRET_KEY=your-secret-key
+SECRET_KEY=replace-me
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 DATABASE_URL=
 REDIS_URL=
 EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_USE_SSL=False
-EMAIL_HOST_USER=
-EMAIL_HOST_PASSWORD=
 DEFAULT_FROM_EMAIL=no-reply@shms.local
 BOOKING_EXPIRY_HOURS=24
 ```
 
-## API Documentation
+Leave `DATABASE_URL` empty to use SQLite. Set it to a PostgreSQL URL in production. Leave `REDIS_URL` empty for the in-memory development channel layer; set it for production websocket scaling.
+
+## API
 
 Base path: `/api/`
 
-Authentication endpoints:
-
 - `POST /api/token/`
 - `POST /api/token/refresh/`
-
-Core resources:
-
 - `GET /api/bookings/`
 - `POST /api/bookings/`
 - `GET /api/rooms/`
 - `GET /api/payments/`
-- `POST /api/payments/`
 - `GET /api/announcements/`
-- `POST /api/announcements/`
 - `GET /api/services/`
-- `POST /api/services/`
 
 Example JWT request:
 
 ```bash
-curl -X POST http://127.0.0.1:8000/api/token/ \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"admin\",\"password\":\"your-password\"}"
+curl -X POST http://127.0.0.1:8000/api/token/ -H "Content-Type: application/json" -d "{\"username\":\"admin\",\"password\":\"your-password\"}"
 ```
 
-## Booking Expiry Command
+## Booking Expiry
 
 Expire unpaid bookings manually with:
 
@@ -279,53 +113,47 @@ Expire unpaid bookings manually with:
 python manage.py expire_unpaid_bookings
 ```
 
-Schedule it with Windows Task Scheduler, cron, or a hosted scheduler.
+Schedule the command with Windows Task Scheduler, cron, or your hosting provider's scheduler.
 
-## Testing
+## Verification
 
-Run the built-in Django check:
+Useful local checks:
 
 ```bash
 python manage.py check
+python manage.py migrate
+python manage.py runserver
 ```
 
-Suggested manual verification:
+Manual flows to verify:
 
-- Create a booking and verify QR generation
-- Update a payment and confirm the invoice PDF changes
-- Post an announcement and verify email and notification delivery
-- Submit a complaint with image and attachment uploads
-- Run `expire_unpaid_bookings` and verify room/bed availability is restored
+- Admin and student login
+- Student room booking and cancellation
+- Admin bed/payment management
+- Complaint uploads
+- Announcement publishing
+- Payment invoice PDF downloads
+- JWT token creation and API access
+- Realtime notification bell updates
+- Console email output during development
 
 ## Deployment
 
 1. Set `DEBUG=False`.
-2. Configure `SECRET_KEY`, `ALLOWED_HOSTS`, `DATABASE_URL`, and email settings.
-3. Use PostgreSQL in production via `DATABASE_URL`.
-4. Run migrations and collect static files.
+2. Configure `SECRET_KEY`, `ALLOWED_HOSTS`, `DATABASE_URL`, and production email settings.
+3. Use PostgreSQL via `DATABASE_URL`.
+4. Configure Redis via `REDIS_URL` for multi-process websocket delivery.
+5. Run migrations and collect static files.
 
 ```bash
 python manage.py migrate
 python manage.py collectstatic
 ```
 
-5. Serve the app with a production WSGI/ASGI server such as Gunicorn, Uvicorn, or Daphne behind Nginx.
-6. Configure static and media file serving.
-7. Schedule the booking expiry command.
-8. Verify email delivery, JWT authentication, and websocket access.
-
-## Suggested Commit Messages
-
-- `feat: add analytics dashboard and chart filters`
-- `feat: add email notifications and reusable templates`
-- `feat: add drf api with jwt auth`
-- `feat: add websocket notifications and bell ui`
-- `feat: add complaint and service attachment uploads`
-- `feat: add invoice pdf generation and booking expiry command`
-- `feat: harden settings for production deployment`
-- `docs: rewrite README for production setup`
+6. Serve the ASGI app with Daphne, Uvicorn, or another ASGI server behind a reverse proxy.
+7. Configure static and media file serving.
+8. Schedule `expire_unpaid_bookings`.
 
 ## License
 
 This project is intended for educational and internal deployment use unless a separate license is added.
->>>>>>> 8c3ff29 (implement new features)

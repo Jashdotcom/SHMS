@@ -9,21 +9,43 @@
             return;
         }
 
-        const item = document.createElement("div");
-        item.className = "p-3 border rounded-3 notification-item";
-        item.innerHTML = '<div class="fw-semibold"></div><div class="small text-secondary"></div>';
+        const emptyState = document.getElementById("notification-empty");
+        if (emptyState) {
+            emptyState.remove();
+        }
+
+        const item = document.createElement(notification.related_url ? "a" : "div");
+        item.className = "notification-item dropdown-item";
+        if (notification.related_url) {
+            item.href = notification.related_url;
+        }
+        item.innerHTML = '<span class="fw-semibold d-block"></span><span class="small text-secondary d-block"></span><span class="small text-secondary"></span>';
         item.querySelector(".fw-semibold").textContent = notification.title || "Notification";
         item.querySelector(".text-secondary").textContent = notification.message || "";
+        item.querySelectorAll(".text-secondary")[1].textContent = "Just now";
 
         if (list.firstChild) {
             list.insertBefore(item, list.firstChild);
         } else {
             list.appendChild(item);
         }
+
+        updateNotificationCount();
+    }
+
+    function updateNotificationCount() {
+        const count = document.getElementById("notification-count");
+        if (!count) {
+            return;
+        }
+
+        const current = Number.parseInt(count.textContent.trim(), 10) || 0;
+        count.textContent = String(current + 1);
+        count.classList.remove("d-none");
     }
 
     function connectNotifications() {
-        if (!window.location.host || !window.WebSocket) {
+        if (!window.location.host || !window.WebSocket || !document.getElementById("notification-count")) {
             return;
         }
 
@@ -34,6 +56,11 @@
                 appendNotification(JSON.parse(event.data));
             } catch (error) {
                 console.error("Notification parse error", error);
+            }
+        };
+        socket.onclose = function (event) {
+            if (event.code !== 1000) {
+                window.setTimeout(connectNotifications, 3000);
             }
         };
     }

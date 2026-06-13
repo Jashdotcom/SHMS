@@ -46,7 +46,31 @@
                 <strong class="brand-font">Hostel Operations</strong>
                 <div class="small text-secondary">Welcome, {{ request.user.first_name|default:request.user.username }}</div>
             </div>
-            <span class="badge text-bg-light border">{{ request.user.get_role_display }}</span>
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-light border position-relative notification-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span id="notification-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-danger {% if unread_notification_count == 0 %}d-none{% endif %}">
+                            {{ unread_notification_count }}
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end notification-menu p-0">
+                        <div class="px-3 py-2 border-bottom fw-semibold">Notifications</div>
+                        <div id="notification-list" class="notification-list">
+                            {% for notification in recent_notifications %}
+                            <a class="notification-item dropdown-item" href="{{ notification.related_url|default:'#' }}">
+                                <span class="fw-semibold d-block">{{ notification.title }}</span>
+                                <span class="small text-secondary d-block">{{ notification.message }}</span>
+                                <span class="small text-secondary">{{ notification.created_at|date:"d M Y, h:i A" }}</span>
+                            </a>
+                            {% empty %}
+                            <div id="notification-empty" class="dropdown-item-text text-secondary small px-3 py-3">No notifications yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <span class="badge text-bg-light border">{{ request.user.get_role_display }}</span>
+            </div>
         </div>
 
         {% if messages %}

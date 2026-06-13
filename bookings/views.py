@@ -156,7 +156,9 @@ def booking_qr_view(request, booking_id):
 
 	if booking.user != request.user and request.user.role != User.ROLE_ADMIN and not request.user.is_staff:
 		messages.error(request, "You are not allowed to view this booking QR.")
-		return redirect("bookings:history")
+		if request.user.role == User.ROLE_ADMIN or request.user.is_staff or request.user.is_superuser:
+			return redirect("bookings:history")
+		return redirect("accounts:dashboard")
 
 	return render(request, "bookings/booking_qr.html", {"booking": booking, "today": date.today()})
 
@@ -167,7 +169,9 @@ def check_in_view(request, booking_id):
 
 	if booking.user != request.user and request.user.role != User.ROLE_ADMIN and not request.user.is_staff:
 		messages.error(request, "You are not allowed to check in for this booking.")
-		return redirect("bookings:history")
+		if request.user.role == User.ROLE_ADMIN or request.user.is_staff or request.user.is_superuser:
+			return redirect("bookings:history")
+		return redirect("accounts:dashboard")
 
 	if request.method == "POST":
 		today = date.today()
@@ -192,7 +196,9 @@ def cancel_booking_view(request, booking_id):
 
 	if booking.user != request.user and request.user.role != User.ROLE_ADMIN and not request.user.is_staff:
 		messages.error(request, "You are not allowed to cancel this booking.")
-		return redirect("bookings:history")
+		if request.user.role == User.ROLE_ADMIN or request.user.is_staff or request.user.is_superuser:
+			return redirect("bookings:history")
+		return redirect("accounts:dashboard")
 
 	if booking.status == Booking.STATUS_BOOKED:
 		booking.status = Booking.STATUS_CANCELLED
@@ -201,7 +207,9 @@ def cancel_booking_view(request, booking_id):
 	else:
 		messages.warning(request, "Only active bookings can be cancelled.")
 
-	return redirect("bookings:history")
+	if request.user.role == User.ROLE_ADMIN or request.user.is_staff or request.user.is_superuser:
+		return redirect("bookings:history")
+	return redirect("accounts:dashboard")
 
 
 @login_required

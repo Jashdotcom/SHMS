@@ -187,6 +187,50 @@ h6,
     background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
 }
 
+.notification-button {
+    width: 42px;
+    height: 42px;
+    display: inline-grid;
+    place-items: center;
+}
+
+.notification-menu {
+    width: min(360px, calc(100vw - 24px));
+    max-height: 420px;
+    overflow: hidden;
+}
+
+.notification-list {
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.notification-list .notification-item {
+    white-space: normal;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 16px;
+}
+
+.notification-list .notification-item:last-child {
+    border-bottom: 0;
+}
+
+.chart-box {
+    position: relative;
+    width: 100%;
+    height: clamp(240px, 32vh, 340px);
+}
+
+.chart-box-sm {
+    height: clamp(220px, 28vh, 300px);
+}
+
+.chart-box canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
 .offcanvas {
     width: min(420px, 100vw);
 }

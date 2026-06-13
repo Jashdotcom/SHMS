@@ -82,7 +82,7 @@ def payment_update_view(request, payment_id):
 						template_name="emails/notification.html",
 						context={
 							"title": "Payment status updated",
-							"message": f"Your payment of ₹{updated_payment.amount} is now marked as {status_label}.",
+							"message": f"Your payment of Rs. {updated_payment.amount} is now marked as {status_label}.",
 							"action_url": request.build_absolute_uri(reverse("payments:download_receipt", args=[updated_payment.id])),
 						},
 						recipients=[updated_payment.user.email],

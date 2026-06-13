@@ -103,7 +103,9 @@
                 </div>
                 {{ payment_chart_labels|json_script:"payment-chart-labels" }}
                 {{ payment_chart_values|json_script:"payment-chart-values" }}
-                <canvas id="paymentsChart" height="200"></canvas>
+                <div class="chart-box chart-box-sm">
+                    <canvas id="paymentsChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -118,7 +120,9 @@
                 </div>
                 {{ monthly_bookings_labels|json_script:"monthly-bookings-labels" }}
                 {{ monthly_bookings_values|json_script:"monthly-bookings-values" }}
-                <canvas id="bookingsTrendChart" height="220"></canvas>
+                <div class="chart-box">
+                    <canvas id="bookingsTrendChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -130,7 +134,9 @@
                 </div>
                 {{ monthly_payments_labels|json_script:"monthly-payments-labels" }}
                 {{ monthly_payments_values|json_script:"monthly-payments-values" }}
-                <canvas id="paymentsTrendChart" height="220"></canvas>
+                <div class="chart-box">
+                    <canvas id="paymentsTrendChart"></canvas>
+                </div>
             </div>
         </div>
     </div>

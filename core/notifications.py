@@ -12,6 +12,7 @@ def create_notification(*, recipient, title, message, notification_type=Notifica
         notification_type=notification_type,
         related_url=related_url,
     )
+    print(f"[NOTIFICATION CREATED] id={notification.id} recipient={recipient.username} title={title}", flush=True)
     channel_layer = get_channel_layer()
     if channel_layer:
         async_to_sync(channel_layer.group_send)(
@@ -28,4 +29,5 @@ def create_notification(*, recipient, title, message, notification_type=Notifica
                 },
             },
         )
+        print(f"[NOTIFICATION BROADCAST] id={notification.id} group=user_{recipient.id}", flush=True)
     return notification

@@ -85,6 +85,7 @@ def admin_complaints_view(request):
 					title="Complaint status updated",
 					message=message,
 				)
+			return redirect("services:admin_complaints")
 
 	paginator = Paginator(complaints.order_by("-created_at"), 10)
 	complaint_page = paginator.get_page(request.GET.get("page"))
