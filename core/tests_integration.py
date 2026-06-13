@@ -43,7 +43,7 @@ class SHMSIntegrationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.admin = User.objects.create_user(
-            username="testadmin",
+            username="adminjash",
             password="admin12345",
             email="testadmin@shms.local",
             role=User.ROLE_ADMIN,
