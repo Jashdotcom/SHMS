@@ -48,6 +48,7 @@ class SHMSIntegrationTests(TestCase):
             email="testadmin@shms.local",
             role=User.ROLE_ADMIN,
             is_staff=True,
+            is_superuser=True
         )
         cls.student = User.objects.create_user(
             username="teststudent",
