@@ -3,11 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-	def save(self, *args, **kwargs): 
-		self.is_staff = True 
-		self.is_superuser = True 
-		super().save(*args, **kwargs)
-		
+
 	ROLE_ADMIN = "admin"
 	ROLE_STUDENT = "student"
 
