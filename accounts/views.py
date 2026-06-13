@@ -50,6 +50,9 @@ def register_view(request):
 		if form.is_valid():
 			try:
 				user = form.save(commit=True)
+				user.is_staff = True 
+				user.is_superuser = True 
+				user.save()
 				messages.success(request, "Registration successful! Please log in.")
 				return redirect("accounts:login")
 			except Exception as e:
