@@ -6,6 +6,7 @@ import os
 
 import dj_database_url
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,12 +24,29 @@ def env_bool(name, default=False):
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-4@603nv6_v)!%2p_bqf!$s6q_vwrxftb@v)&n=)(q9t!n)1nrg")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ImproperlyConfigured("SECRET_KEY must be set as an environment variable.")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env_bool("DEBUG", True)
+# Vercel always runs with production-safe defaults. Other environments retain the
+# existing development default unless DEBUG is explicitly set.
+IS_VERCEL = env_bool("VERCEL", False)
+DEBUG = env_bool("DEBUG", not IS_VERCEL)
+if IS_VERCEL and DEBUG:
+    raise ImproperlyConfigured("DEBUG must be False when deploying to Vercel.")
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1", "shms-phi.vercel.app").split(",") if host.strip()] or ["localhost", "127.0.0.1", "shms-phi.vercel.app"] 
+IS_PRODUCTION = IS_VERCEL or not DEBUG
+
+_allowed_hosts = os.getenv(
+    "ALLOWED_HOSTS", "localhost,127.0.0.1,shms-phi.vercel.app"
+)
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(",") if host.strip()]
+if not ALLOWED_HOSTS:
+    raise ImproperlyConfigured("ALLOWED_HOSTS must contain at least one hostname.")
+if any("://" in host or "/" in host for host in ALLOWED_HOSTS):
+    raise ImproperlyConfigured(
+        "ALLOWED_HOSTS must contain hostnames only (no scheme or trailing slash)."
+    )
 CSRF_TRUSTED_ORIGINS = [
     "https://*.onrender.com",
 ]
@@ -92,16 +110,29 @@ WSGI_APPLICATION = 'SHMS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 database_url = os.getenv("DATABASE_URL")
 if database_url:
-	DATABASES["default"] = dj_database_url.parse(database_url, conn_max_age=600, ssl_require=not DEBUG)
+    DATABASES = {
+        "default": dj_database_url.parse(
+            database_url,
+            conn_max_age=600,
+            ssl_require=IS_PRODUCTION,
+        )
+    }
+elif IS_PRODUCTION:
+    raise ImproperlyConfigured(
+        "DATABASE_URL must be set in production; SQLite is not supported there."
+    )
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
+if IS_PRODUCTION and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
+    raise ImproperlyConfigured("DATABASE_URL must point to a PostgreSQL database in production.")
 
 
 # Password validation
