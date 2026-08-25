@@ -10,12 +10,8 @@ from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-# A local .env is the explicit development configuration. On Vercel, preserve
-# platform-provided values even if a local file is present unexpectedly.
-_is_vercel_environment = os.getenv("VERCEL", "").strip().lower() in {
-    "1", "true", "yes", "on"
-}
-load_dotenv(BASE_DIR / ".env", override=not _is_vercel_environment)
+# Local development configuration lives in the ignored .env file.
+load_dotenv(BASE_DIR / ".env", override=True)
 
 
 def env_bool(name, default=False):
@@ -33,27 +29,19 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise ImproperlyConfigured("SECRET_KEY must be set as an environment variable.")
 
-# Vercel always runs with production-safe defaults. Other environments retain the
-# existing development default unless DEBUG is explicitly set.
-IS_VERCEL = env_bool("VERCEL", False)
-DEBUG = env_bool("DEBUG", not IS_VERCEL)
-if IS_VERCEL and DEBUG:
-    raise ImproperlyConfigured("DEBUG must be False when deploying to Vercel.")
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env_bool("DEBUG", True)
 
-IS_PRODUCTION = IS_VERCEL or not DEBUG
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
-_allowed_hosts = os.getenv(
-    "ALLOWED_HOSTS", "localhost,127.0.0.1,shms-phi.vercel.app"
-)
-ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(",") if host.strip()]
-if not ALLOWED_HOSTS:
-    raise ImproperlyConfigured("ALLOWED_HOSTS must contain at least one hostname.")
-if any("://" in host or "/" in host for host in ALLOWED_HOSTS):
-    raise ImproperlyConfigured(
-        "ALLOWED_HOSTS must contain hostnames only (no scheme or trailing slash)."
-    )
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.onrender.com",
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
 ]
 
 
@@ -81,7 +69,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -121,13 +108,13 @@ if database_url:
         "default": dj_database_url.parse(
             database_url,
             conn_max_age=600,
-            ssl_require=IS_PRODUCTION,
+            ssl_require=not DEBUG,
         )
     }
-elif IS_PRODUCTION:
-    raise ImproperlyConfigured(
-        "DATABASE_URL must be set in production; SQLite is not supported there."
-    )
+    if not DEBUG and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
+        raise ImproperlyConfigured("DATABASE_URL must point to a PostgreSQL database when DEBUG=False.")
+elif not DEBUG:
+    raise ImproperlyConfigured("DATABASE_URL must be set when DEBUG=False.")
 else:
     DATABASES = {
         "default": {
@@ -135,9 +122,6 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-
-if IS_PRODUCTION and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
-    raise ImproperlyConfigured("DATABASE_URL must point to a PostgreSQL database in production.")
 
 
 # Password validation
@@ -177,7 +161,6 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -232,5 +215,3 @@ CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", False)
 SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
 SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", False)
-
-
