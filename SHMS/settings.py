@@ -34,9 +34,16 @@ DEBUG = env_bool("DEBUG", True)
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1", "shms-theta.vercel.app").split(",")
+    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
     if host.strip()
 ]
+
+for vercel_host in (
+    os.getenv("VERCEL_URL"),
+    os.getenv("VERCEL_PROJECT_PRODUCTION_URL"),
+):
+    if vercel_host and vercel_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(vercel_host)
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
