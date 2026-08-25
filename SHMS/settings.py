@@ -10,7 +10,12 @@ from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+# A local .env is the explicit development configuration. On Vercel, preserve
+# platform-provided values even if a local file is present unexpectedly.
+_is_vercel_environment = os.getenv("VERCEL", "").strip().lower() in {
+    "1", "true", "yes", "on"
+}
+load_dotenv(BASE_DIR / ".env", override=not _is_vercel_environment)
 
 
 def env_bool(name, default=False):
