@@ -28,10 +28,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-4@603nv6_v)!%2p_bqf!$s6q_v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_bool("DEBUG", True)
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()] or ["localhost", "127.0.0.1"] 
-CSRF_TRUSTED_ORIGINS = [
-    "https://*.onrender.com",
-]
+ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()] or ["localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -138,10 +135,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -196,5 +197,3 @@ CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", False)
 SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", False)
 SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", False)
-
-
