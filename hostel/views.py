@@ -14,7 +14,7 @@ def _is_admin_user(user):
 
 @login_required
 def room_list_view(request):
-	rooms = Room.objects.select_related("hostel")
+	rooms = Room.objects.filter(available_beds__gt=0).select_related("hostel")
 	return render(request, "hostel/rooms.html", {"rooms": rooms})
 
 
