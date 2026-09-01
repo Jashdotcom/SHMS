@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import OuterRef, Subquery
 from django.shortcuts import redirect, render
 
 from accounts.models import User
@@ -14,7 +15,11 @@ def _is_admin_user(user):
 
 @login_required
 def room_list_view(request):
-	rooms = Room.objects.filter(available_beds__gt=0).select_related("hostel")
+	room_ids = Room.objects.filter(
+		available_beds__gt=0,
+		room_number=OuterRef("room_number"),
+	).order_by("-available_beds", "pk").values("pk")[:1]
+	rooms = Room.objects.filter(pk=Subquery(room_ids)).select_related("hostel")
 	return render(request, "hostel/rooms.html", {"rooms": rooms})
 
 

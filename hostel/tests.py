@@ -28,9 +28,21 @@ class RoomListViewTests(TestCase):
 			capacity=2,
 			available_beds=1,
 		)
+		other_hostel = Hostel.objects.create(name="Other Hostel", location="Other Location")
+		duplicate_room = Room.objects.create(
+			hostel=other_hostel,
+			room_number=available_room.room_number,
+			room_type=Room.TYPE_TRIPLE,
+			capacity=3,
+			available_beds=2,
+		)
 		self.client.force_login(self.user)
 
 		response = self.client.get(reverse("hostel:rooms"))
+		displayed_rooms = list(response.context["rooms"])
 
 		self.assertNotContains(response, empty_room.room_number)
-		self.assertContains(response, available_room.room_number)
+		self.assertEqual(displayed_rooms, [duplicate_room])
+		self.assertContains(response, duplicate_room.room_number)
+		self.assertContains(response, duplicate_room.hostel.name)
+		self.assertContains(response, duplicate_room.available_beds)
