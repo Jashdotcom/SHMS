@@ -2,6 +2,9 @@
 
 SHMS is a Django-based hostel management platform for student room booking, bed allocation, payments, complaints, service requests, announcements, analytics, invoices, APIs, and real-time notifications.
 
+## Live Demo
+https://shms-cxrn.onrender.com
+
 ## Highlights
 
 - Role-based access for students and administrators
